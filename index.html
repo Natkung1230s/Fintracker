@@ -438,6 +438,17 @@
     margin-top:8px;
     display:none;
   }
+  .forgot-link{
+    display:inline-block;
+    margin-top:6px;
+    font-size:12px;
+    color:var(--amber-dark);
+    text-decoration:none;
+    font-weight:600;
+  }
+  .forgot-link:hover{
+    text-decoration:underline;
+  }
 
   /* Payslip */
   .payslip-modal{
@@ -735,7 +746,7 @@
     <div style="text-align:center;margin-bottom:18px;">
       <div class="eyebrow" style="color:var(--amber-dark);">FIREBASE CLOUD AUTH</div>
       <h2 style="margin:0;font-size:22px;color:var(--ink);">Salary Counting</h2>
-      <p style="margin:4px 0 0;font-size:12.5px;color:var(--muted);">เข้าสู่ระบบเพื่อซิงค์ข้อมูลผ่าน Cloud Database</p>
+      <p style="margin:4px 0 0;font-size:12.5px;color:var(--muted);">เข้าสู่ระบบด้วยอีเมลเพื่อซิงค์ข้อมูลผ่าน Cloud</p>
     </div>
 
     <div class="auth-tabs">
@@ -746,12 +757,15 @@
     <!-- LOGIN FORM -->
     <form id="formLogin" onsubmit="handleLoginSubmit(event)">
       <div class="form-group">
-        <label>ชื่อผู้ใช้งาน หรือ อีเมล</label>
-        <input id="login_username" type="text" placeholder="เช่น somchai หรือ somchai@gmail.com" required>
+        <label>อีเมล (Email)</label>
+        <input id="login_username" type="email" placeholder="เช่น somchai@gmail.com" required>
       </div>
-      <div class="form-group">
-        <label>รหัสผ่าน / PIN (อย่างน้อย 6 หลัก)</label>
-        <input id="login_pin" type="password" placeholder="รหัสผ่านอย่างน้อย 6 หลัก" required minlength="6">
+      <div class="form-group" style="margin-bottom:6px;">
+        <label>รหัสผ่าน / PIN (อย่างน้อย 6 ตัวอักษร)</label>
+        <input id="login_pin" type="password" placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร" required minlength="6">
+      </div>
+      <div style="text-align:right;">
+        <a href="#" class="forgot-link" onclick="handleForgotPassword(event)">ลืมรหัสผ่าน?</a>
       </div>
       <div class="auth-error" id="loginError">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
       <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:16px;padding:10px;">เข้าสู่ระบบ</button>
@@ -760,12 +774,12 @@
     <!-- REGISTER FORM -->
     <form id="formRegister" style="display:none;" onsubmit="handleRegisterSubmit(event)">
       <div class="form-group">
-        <label>ชื่อผู้ใช้งาน หรือ อีเมล (สำหรับ Login)</label>
-        <input id="reg_username" type="text" placeholder="เช่น somchai หรือ somchai@gmail.com" required>
+        <label>อีเมล (สำหรับเข้าสู่ระบบและกู้คืนรหัสผ่าน)</label>
+        <input id="reg_username" type="email" placeholder="เช่น somchai@gmail.com" required>
       </div>
       <div class="form-group">
-        <label>ตั้งรหัสผ่าน / PIN (อย่างน้อย 6 หลัก)</label>
-        <input id="reg_pin" type="password" placeholder="รหัสผ่านอย่างน้อย 6 หลัก" required minlength="6">
+        <label>ตั้งรหัสผ่าน / PIN (อย่างน้อย 6 ตัวอักษร)</label>
+        <input id="reg_pin" type="password" placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร" required minlength="6">
       </div>
       <div class="form-group">
         <label>ชื่อ-นามสกุล พนักงาน</label>
@@ -908,7 +922,8 @@
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
     onAuthStateChanged, 
-    signOut 
+    signOut,
+    sendPasswordResetEmail
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { 
     getFirestore, 
@@ -917,7 +932,6 @@
     setDoc 
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // Config จาก Firebase ของคุณ
   const firebaseConfig = {
     apiKey: "AIzaSyBDIqntSdjumeFL3iOgB_Om8StrQfSCSzg",
     authDomain: "market-7facf.firebaseapp.com",
@@ -984,10 +998,9 @@
     holiday: 'badge-holiday'
   };
 
-  // Convert username to email format for Firebase
-  function toEmail(input) {
-    if (input.includes('@')) return input.trim().toLowerCase();
-    return `${input.trim().toLowerCase()}@salaryapp.local`;
+  // Helper validate email format
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   // Auth Listener
@@ -1002,7 +1015,7 @@
 
       const shortName = user.email.split('@')[0];
       document.getElementById('hdr_userName').textContent = shortName;
-      document.getElementById('hdr_userRole').textContent = `@${shortName.toUpperCase()}`;
+      document.getElementById('hdr_userRole').textContent = user.email;
 
       await loadCloudUserData(user.uid);
     } else {
@@ -1145,25 +1158,38 @@
 
   async function handleLoginSubmit(e) {
     e.preventDefault();
-    const u = document.getElementById('login_username').value;
+    const email = document.getElementById('login_username').value.trim();
     const p = document.getElementById('login_pin').value;
-    const email = toEmail(u);
+
+    if (!isValidEmail(email)) {
+      document.getElementById('loginError').textContent = 'กรุณากรอกอีเมลให้ถูกต้องตามรูปแบบ (เช่น name@example.com)';
+      document.getElementById('loginError').style.display = 'block';
+      return;
+    }
 
     try {
       await signInWithEmailAndPassword(auth, email, p);
     } catch (err) {
-      document.getElementById('loginError').textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+      let msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      if (err.code === 'auth/invalid-email') msg = 'รูปแบบอีเมลไม่ถูกต้อง';
+      else if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') msg = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      document.getElementById('loginError').textContent = msg;
       document.getElementById('loginError').style.display = 'block';
     }
   }
 
   async function handleRegisterSubmit(e) {
     e.preventDefault();
-    const u = document.getElementById('reg_username').value;
+    const email = document.getElementById('reg_username').value.trim();
     const p = document.getElementById('reg_pin').value;
     const name = document.getElementById('reg_name').value.trim();
     const salary = parseFloat(document.getElementById('reg_salary').value) || 25000;
-    const email = toEmail(u);
+
+    if (!isValidEmail(email)) {
+      document.getElementById('regError').textContent = 'กรุณากรอกอีเมลให้ถูกต้องตามรูปแบบ (เช่น name@example.com)';
+      document.getElementById('regError').style.display = 'block';
+      return;
+    }
 
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, p);
@@ -1177,11 +1203,35 @@
       });
     } catch (err) {
       let msg = 'ไม่สามารถสร้างบัญชีได้: ';
-      if (err.code === 'auth/email-already-in-use') msg = 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว';
+      if (err.code === 'auth/email-already-in-use') msg = 'อีเมลนี้ถูกใช้งานลงทะเบียนแล้ว';
+      else if (err.code === 'auth/invalid-email') msg = 'รูปแบบอีเมลไม่ถูกต้อง';
       else if (err.code === 'auth/weak-password') msg = 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
       else msg += err.message;
       document.getElementById('regError').textContent = msg;
       document.getElementById('regError').style.display = 'block';
+    }
+  }
+
+  async function handleForgotPassword(e) {
+    if (e) e.preventDefault();
+    const email = prompt("กรุณากรอกอีเมลของคุณเพื่อรับลิงก์ตั้งรหัสผ่านใหม่:");
+    if (!email) return;
+
+    const trimmedEmail = email.trim();
+    if (!isValidEmail(trimmedEmail)) {
+      alert("รูปแบบอีเมลไม่ถูกต้อง กรุณาระบุ เช่น name@example.com");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, trimmedEmail);
+      alert(`ระบบได้ส่งลิงก์สำหรับรีเซ็ตรหัสผ่านไปยัง ${trimmedEmail} เรียบร้อยแล้ว\n(กรุณาตรวจสอบในกล่องข้อความ หรือโฟลเดอร์ Junk/Spam)`);
+    } catch (err) {
+      let msg = "ไม่สามารถส่งอีเมลรีเซ็ตรหัสผ่านได้: ";
+      if (err.code === 'auth/user-not-found') msg = "ไม่พบอีเมลนี้ในระบบ";
+      else if (err.code === 'auth/invalid-email') msg = "รูปแบบอีเมลไม่ถูกต้อง";
+      else msg += err.message;
+      alert(msg);
     }
   }
 
@@ -1629,7 +1679,7 @@
     document.getElementById('tax_monthlyWithhold').textContent = fmtBaht(taxResult.monthlyWithhold);
   }
 
-  // Attach Functions to Window for Inline Event Handlers
+  // Attach Functions to Window
   window.toggleSettings = toggleSettings;
   window.saveSettings = saveSettings;
   window.shiftMonth = shiftMonth;
@@ -1649,6 +1699,7 @@
   window.switchAuthTab = switchAuthTab;
   window.handleLoginSubmit = handleLoginSubmit;
   window.handleRegisterSubmit = handleRegisterSubmit;
+  window.handleForgotPassword = handleForgotPassword;
   window.handleLogout = handleLogout;
 </script>
 
