@@ -653,7 +653,7 @@
     </div>
 
     <div class="settings-body" id="settingsBody">
-      <p class="hint">ฐานคิดค่าจ้าง: เงินเดือน ÷ 31 วัน | หากมาสายเกิน 1 นาที ระบบจะหักเงินเท่ากับค่าจ้าง 1 ชั่วโมงโดยอัตโนมัติ</p>
+      <p class="hint">ฐานคิดค่าจ้าง: เงินเดือน ÷ 30 วัน | หากมาสายเกิน 1 นาที ระบบจะหักเงินเท่ากับค่าจ้าง 1 ชั่วโมงโดยอัตโนมัติ</p>
       
       <div class="grid">
         <div class="section-divider">📌 ข้อมูลทั่วไป & อัตราค่าจ้าง</div>
@@ -743,7 +743,7 @@
   <!-- SUMMARY -->
   <section class="card" id="summaryCard">
     <h2>สรุปเงินเดือนประจำเดือน</h2>
-    <p class="hint">คำนวณตามจริงรายวัน (ฐานเงินเดือน ÷ 31 วัน) พร้อมรายการหักสายและประกันสังคม</p>
+    <p class="hint">คำนวณตามจริงรายวัน (ฐานเงินเดือน ÷ 30 วัน) พร้อมรายการหักสายและประกันสังคม</p>
     <div class="stamp-wrap" id="stampWrap"></div>
     
     <div class="summary-grid">
@@ -1193,7 +1193,7 @@
       btn.textContent = 'แก้ไข ▼';
     }
 
-    const daily = settings.salary > 0 ? (settings.salary / 31) : 0;
+    const daily = settings.salary > 0 ? (settings.salary / 30) : 0;
     const empName = settings.name ? settings.name : (currentUserEmail ? currentUserEmail.split('@')[0] : 'พนักงาน');
     summary.textContent = `${empName} • ฿${Number(settings.salary).toLocaleString('th-TH')} (เฉลี่ยวันละ ฿${Math.round(daily).toLocaleString('th-TH')}) • ลา: ป่วย ${settings.quotaSick||30} / กิจ ${settings.quotaBusiness||3} / พักร้อน ${settings.quotaAnnual||6} วัน`;
   }
@@ -1634,7 +1634,7 @@
     const lateOccurrences = lateEntries.length;
     const lateDeductedHours = lateOccurrences * 1;
 
-    const dailyRate = settings.salary > 0 ? (settings.salary / 31) : 0;
+    const dailyRate = settings.salary > 0 ? (settings.salary / 30) : 0;
     const hourlyRate = settings.hours > 0 ? (dailyRate / settings.hours) : 0;
 
     const payableDays = actualWorkedDays + paidLeaveDays;
