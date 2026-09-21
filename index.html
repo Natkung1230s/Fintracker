@@ -195,7 +195,7 @@
   }
   input[type="number"],input[type="password"]{font-family:'IBM Plex Mono',monospace;}
 
-  /* IMPROVED TAX FIELD & TIP BOX DESIGN */
+  /* TAX FIELD & TIP BOX DESIGN */
   .tax-field-group{
     display:flex;
     flex-direction:column;
@@ -279,6 +279,7 @@
   .monthbar .nav{display:flex;align-items:center;gap:6px;}
   .monthbar button{background:var(--ink);color:#F1E9D2;padding:5px 12px;font-family:'IBM Plex Mono',monospace;}
   .monthbar .label{font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:700;min-width:140px;text-align:center;}
+  .period-range{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--muted);margin-top:2px;letter-spacing:.01em;}
 
   .calendar-wrapper{
     background:#FFFDF7;
@@ -317,6 +318,9 @@
   .cal-cell:hover{background:#F5ECD0;}
   .cal-cell.empty{background:rgba(201,188,152,.15);cursor:default;}
   .cal-cell.is-offday{background:#FAF2E2;}
+  .cal-cell.other-month{background:rgba(201,188,152,.22);}
+  .cal-cell.other-month:hover{background:rgba(201,188,152,.34);}
+  .cal-cell.other-month .day-num{color:var(--muted);}
   .cal-cell.is-today .day-num{
     background:var(--ink);
     color:#FFF;
@@ -332,6 +336,14 @@
     color:var(--text);
     margin-bottom:3px;
     width:fit-content;
+    display:flex;
+    align-items:baseline;
+    gap:3px;
+  }
+  .day-num-month{
+    font-size:9px;
+    font-weight:600;
+    color:var(--muted);
   }
 
   .cell-content{
@@ -389,6 +401,46 @@
   .stat.total .k{color:#C9BC98;}
   .stat.total .v{font-size:26px;color:var(--amber);}
 
+  /* Expense Tracker */
+  .expense-list{display:flex;flex-direction:column;gap:8px;}
+  .expense-row{
+    display:flex;align-items:center;gap:12px;
+    background:#FFFDF7;border:1px solid var(--line);border-radius:8px;
+    padding:10px 14px;
+  }
+  .expense-row .exp-main{flex:1;min-width:0;}
+  .expense-row .exp-title{font-size:14px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .expense-row .exp-sub{font-size:11.5px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+  .expense-row .exp-amount{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:15px;color:var(--red);white-space:nowrap;}
+  .expense-row .exp-del{
+    background:transparent;border:1px solid var(--line);color:var(--muted);
+    width:28px;height:28px;padding:0;border-radius:6px;font-size:14px;line-height:1;flex-shrink:0;
+  }
+  .expense-row .exp-del:hover{background:var(--red);border-color:var(--red);color:#fff;}
+  .expense-empty{
+    text-align:center;color:var(--muted);font-size:13px;
+    padding:20px;border:1px dashed var(--line);border-radius:8px;background:rgba(255,255,255,.3);
+  }
+  .exp-cat-tag{
+    display:inline-block;font-size:11px;font-weight:600;color:var(--ink-2);
+    background:var(--paper-2);border-radius:20px;padding:2px 9px;margin-right:6px;
+  }
+
+  /* Expense Group (shared) */
+  .expense-group-setup{display:flex;flex-wrap:wrap;gap:20px;padding-top:4px;}
+  .expense-group-setup-col{flex:1;min-width:220px;}
+  .expense-group-setup-col label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .expense-group-active{
+    display:flex;flex-wrap:wrap;align-items:center;gap:20px;
+    background:#FFFDF7;border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  }
+  .group-code{
+    font-size:20px;font-weight:700;letter-spacing:.08em;color:var(--amber-dark);
+    background:var(--paper-2);border:1px dashed var(--line);border-radius:6px;
+    padding:6px 12px;cursor:pointer;display:inline-block;
+  }
+  .group-code:hover{background:#F5ECD0;}
+
   /* Stamp */
   .stamp-wrap{position:absolute;top:16px;right:18px;}
   .stamp{
@@ -406,7 +458,7 @@
   }
   .stamp.broken{border-color:var(--red);color:var(--red);}
 
-  /* TAX RESULT DASHBOARD CARD (REFINED) */
+  /* TAX RESULT DASHBOARD CARD */
   .tax-dashboard{
     background:linear-gradient(140deg, #1A2430 0%, #253344 100%);
     color:#F1E9D2;
@@ -522,6 +574,116 @@
     line-height:1.3;
   }
 
+  /* ===== PIN Lock System ===== */
+  @keyframes pinShake{
+    10%,90%{transform:translateX(-1px);}
+    20%,80%{transform:translateX(2px);}
+    30%,50%,70%{transform:translateX(-4px);}
+    40%,60%{transform:translateX(4px);}
+  }
+  .pin-overlay{
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:2200;
+    padding:16px;
+  }
+  .pin-overlay.open{display:flex;}
+  .pin-overlay.blocking{
+    background:linear-gradient(135deg, var(--ink), var(--ink-2));
+  }
+  .pin-overlay.dismissible{
+    background:rgba(30,42,56,.72);
+    backdrop-filter:blur(3px);
+  }
+  .pin-box{
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:18px;
+    max-width:340px;
+    width:100%;
+    padding:26px 22px 22px;
+    text-align:center;
+    box-shadow:0 16px 40px rgba(0,0,0,.45);
+    position:relative;
+  }
+  .pin-close{
+    position:absolute;top:10px;right:12px;
+    background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;
+    line-height:1;padding:4px;
+  }
+  .pin-icon{
+    width:56px;height:56px;border-radius:50%;
+    background:linear-gradient(160deg, var(--amber), var(--amber-dark));
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;margin:0 auto 12px;
+    box-shadow:0 6px 14px rgba(214,138,45,.35);
+  }
+  .pin-box h2{margin:0 0 4px;font-size:17px;color:var(--ink);}
+  .pin-subtitle{margin:0 0 18px;font-size:12.5px;color:var(--muted);line-height:1.5;}
+  .pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:8px;}
+  .pin-dot{
+    width:15px;height:15px;border-radius:50%;
+    border:2px solid var(--line);
+    background:#FFFDF7;
+    transition:all .15s ease;
+  }
+  .pin-dot.filled{
+    background:var(--amber);
+    border-color:var(--amber-dark);
+    transform:scale(1.1);
+  }
+  .pin-dots.shake{animation:pinShake .4s ease;}
+  .pin-error{
+    color:var(--red);
+    font-size:12px;
+    min-height:16px;
+    margin:6px 0 4px;
+    font-weight:600;
+  }
+  .pin-keypad{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:10px;
+    margin:14px 0 6px;
+  }
+  .pin-key{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:19px;
+    font-weight:700;
+    padding:14px 0;
+    border-radius:12px;
+    border:1px solid var(--line);
+    background:#FFFDF7;
+    color:var(--ink);
+    cursor:pointer;
+    transition:all .12s ease;
+    user-select:none;
+  }
+  .pin-key:hover{background:#FFF;border-color:var(--amber);}
+  .pin-key:active{transform:scale(.93);background:rgba(214,138,45,.18);}
+  .pin-key.pin-key-del{font-size:16px;color:var(--muted);}
+  .pin-key.pin-key-empty{visibility:hidden;cursor:default;}
+  .pin-links{display:flex;flex-direction:column;gap:6px;margin-top:12px;}
+  .pin-links a{
+    font-size:12.5px;
+    color:var(--amber-dark);
+    text-decoration:underline;
+    cursor:pointer;
+    font-weight:600;
+  }
+  .pin-links a.pin-link-muted{color:var(--muted);}
+  .pin-lockout{
+    font-size:12px;color:var(--red);font-weight:700;margin-top:8px;
+  }
+  .pin-auth-panel .form-group{margin-bottom:12px;text-align:left;}
+  .pin-auth-panel label{font-size:12px;}
+
+  body.pin-locked .money-mask{
+    cursor:pointer;
+  }
+
   /* Payslip */
   .payslip-modal{
     max-width:680px;
@@ -628,6 +790,7 @@
         <div class="user-name" id="hdr_userName">พนักงาน</div>
         <div class="user-role" id="hdr_userRole">CLOUD ACCOUNT</div>
       </div>
+      <button class="btn-ghost" id="hdr_lockBtn" style="display:none;padding:4px 8px;font-size:11.5px;color:#F1E9D2;border-color:rgba(255,255,255,.3);" onclick="handleLockButtonClick()" title="ซ่อน/แสดงยอดเงิน">🔒 ซ่อนยอด</button>
       <button class="btn-ghost" style="padding:4px 8px;font-size:11.5px;color:#F1E9D2;border-color:rgba(255,255,255,.3);" onclick="handleLogout()">ออกจากระบบ</button>
     </div>
   </div>
@@ -639,11 +802,10 @@
   <div class="main-nav-tabs">
     <button class="tab-btn active" id="btnTabAttendance" onclick="switchMainTab('attendance')">📅 ลงเวลา & คำนวณเงินเดือน</button>
     <button class="tab-btn" id="btnTabTax" onclick="switchMainTab('tax')">📊 ระบบคำนวณ & วางแผนภาษี (PIT)</button>
+    <button class="tab-btn" id="btnTabExpense" onclick="switchMainTab('expense')">💸 บันทึกรายจ่าย</button>
   </div>
 
-  <!-- ================================================================= -->
-  <!-- CATEGORY 1: ATTENDANCE & PAYROLL PAGE                             -->
-  <!-- ================================================================= -->
+  <!-- CATEGORY 1: ATTENDANCE & PAYROLL PAGE -->
   <div id="attendanceView">
     <!-- DATA & ACTIONS TOOLBAR -->
     <div class="toolbar">
@@ -680,22 +842,19 @@
           <div><label>อัตราค่าโอทีปกติ (เท่า)</label><input id="s_ot" type="number" min="1" step="0.1"></div>
           <div><label>โบนัสมาครบไม่ขาดงาน (บาท)</label><input id="s_bonus" type="number" min="0" step="1"></div>
           <div><label>หักประกันสังคม (บาท/เดือน)</label><input id="s_sso" type="number" min="0" step="1" value="750"></div>
-          <div><label>วันลานับเป็นการตัดโบนัสหรือไม่</label>
-            <select id="s_leaveCounts">
-              <option value="no">ไม่ตัดสิทธิ์ (ลาตามสิทธิ์ยังได้โบนัส)</option>
-              <option value="yes">ตัดสิทธิ์โบนัสทันที</option>
-            </select>
+          <div><label>เงื่อนไขเบี้ยขยัน</label>
+            <div class="hint" style="margin-top:6px;line-height:1.5;">ลาป่วย / ลากิจ / ลาไม่รับเงิน / ขาดงาน — ตัดสิทธิ์เบี้ยขยันทันที<br>ลาพักร้อน — ไม่ตัดสิทธิ์ ยังได้เบี้ยขยันตามปกติ</div>
           </div>
 
           <div class="section-divider">🏖️ สิทธิ์วันลาประจำปีตามกฎหมาย (วัน/ปี)</div>
-          <div><label>สิทธิ์ลาป่วย (ได้รับค่าจ้าง)</label><input id="s_quota_sick" type="number" min="0" step="1" placeholder="เช่น 30"></div>
+          <div><label>สิทธิ์ลาป่วย</label><input id="s_quota_sick" type="number" min="0" step="1" placeholder="เช่น 30"></div>
           <div><label>สิทธิ์ลากิจ (ได้รับค่าจ้าง)</label><input id="s_quota_biz" type="number" min="0" step="1" placeholder="เช่น 3"></div>
           <div><label>สิทธิ์ลาพักร้อน (ได้รับค่าจ้าง)</label><input id="s_quota_annual" type="number" min="0" step="1" placeholder="เช่น 6"></div>
 
           <div class="section-divider">🚗 สวัสดิการ & วันหยุดประจำสัปดาห์</div>
           <div><label>ค่าเดินทาง/วัน (เฉพาะวันทำงาน)</label><input id="s_travel" type="number" min="0" step="1"></div>
           <div><label>ค่าเช่าบ้าน/วัน (เฉพาะวันทำงาน)</label><input id="s_housing" type="number" min="0" step="1"></div>
-          <div><label>ค่าอาหารโอที/วัน (เฉพาะวันมีโอที)</label><input id="s_otMeal" type="number" min="0" step="1"></div>
+          <div><label>ค่าอาหารโอที/วัน (โอทีตั้งแต่ 2 ชม. ขึ้นไป)</label><input id="s_otMeal" type="number" min="0" step="1"></div>
           <div><label>วันหยุดประจำสัปดาห์</label>
             <select id="s_offDay">
               <option value="0">วันอาทิตย์</option>
@@ -708,12 +867,31 @@
             </select>
           </div>
           <div><label>อัตราโอทีวันหยุด (เท่า)</label><input id="s_offDayOt" type="number" min="1" step="0.1"></div>
+
+          <div class="section-divider">📅 รอบตัดยอดเงินเดือน</div>
+          <div>
+            <label>วันที่ตัดยอด (เริ่มงวดใหม่)</label>
+            <input id="s_payCutoffDay" type="number" min="1" max="28" step="1" placeholder="เช่น 21">
+            <p class="hint" style="margin:6px 0 0;">ค่าเริ่มต้น = 21 หมายถึง งวดเงินเดือนเริ่มวันที่ 21 ของเดือน ถึงวันที่ 20 ของเดือนถัดไป (วันสุดท้ายของงวดคือวันที่ 20)</p>
+          </div>
         </div>
         
         <div class="row-actions">
           <span id="saveMsg" style="align-self:center;font-size:12px;color:var(--teal);opacity:0;transition:opacity .3s;">บันทึกแล้ว</span>
           <button class="btn-primary" onclick="saveSettings()">บันทึกและพับเก็บ</button>
         </div>
+      </div>
+    </section>
+
+    <!-- PIN SECURITY -->
+    <section class="card">
+      <h2>🔐 ความปลอดภัย PIN</h2>
+      <p class="hint" id="pin_settings_hint">ยังไม่ได้ตั้ง PIN — ยอดเงินจะแสดงตามปกติ ตั้ง PIN ถ้าต้องการซ่อนยอดเงินจากคนอื่น</p>
+      <div class="row-actions" style="justify-content:flex-start;flex-wrap:wrap;gap:8px;">
+        <button class="btn-primary" id="pin_setup_btn" onclick="startSetupPinFlow()">🔒 ตั้งรหัส PIN</button>
+        <button class="btn-primary" id="pin_change_btn" style="display:none;" onclick="startChangePinFlow()">🔁 เปลี่ยนรหัส PIN</button>
+        <button class="btn-ghost" id="pin_forgot_btn" style="display:none;" onclick="startForgotPinFlow()">ลืมรหัส PIN เดิม?</button>
+        <button class="btn-ghost" id="pin_disable_btn" style="display:none;color:var(--red);" onclick="startDisablePinFlow()">🚫 ปิดการใช้งาน PIN</button>
       </div>
     </section>
 
@@ -759,33 +937,114 @@
     <!-- SUMMARY PAYROLL -->
     <section class="card" id="summaryCard">
       <h2>สรุปเงินเดือนประจำเดือน</h2>
-      <p class="hint">คำนวณตามจริงรายวัน (ฐานเงินเดือน ÷ 30 วัน) พร้อมรายการหักสายและประกันสังคม</p>
+      <p class="hint">คำนวณยอดสุทธิ: (เงินเดือน + สวัสดิการ) - (จำนวนวันลาป่วย × (เงินเดือน ÷ 30)) - รายการหักอื่นๆ</p>
       <div class="stamp-wrap" id="stampWrap"></div>
       
       <div class="summary-grid">
         <div class="stat"><div class="k">วันมาทำงานจริง</div><div class="v" id="sum_worked">0 วัน</div></div>
-        <div class="stat"><div class="k">วันลาตามสิทธิ์</div><div class="v" id="sum_paidLeave">0 วัน</div></div>
+        <div class="stat"><div class="k">วันลาป่วย</div><div class="v" id="sum_sickLeave">0 วัน</div></div>
+        <div class="stat"><div class="k">วันลาตามสิทธิ์อื่น</div><div class="v" id="sum_paidLeave">0 วัน</div></div>
         <div class="stat"><div class="k">ลาไม่รับเงิน/ขาด</div><div class="v" id="sum_unpaidLeave">0 / 0 วัน</div></div>
-        <div class="stat"><div class="k">ค่าแรง/วัน & ชม.</div><div class="v" id="sum_dailyHourly">฿0 / ฿0</div></div>
+        <div class="stat"><div class="k">ค่าแรง/วัน & ชม.</div><div class="v money-mask" id="sum_dailyHourly">฿0 / ฿0</div></div>
         
-        <div class="stat"><div class="k">เงินเดือนตามวันทำงาน</div><div class="v" id="sum_base">฿0</div></div>
-        <div class="stat"><div class="k">โบนัสวันหยุด (<span id="sum_offDayCount">0</span>ว.)</div><div class="v" id="sum_offDayBonus">฿0</div></div>
-        <div class="stat"><div class="k">ค่าเดินทาง & เช่าบ้าน</div><div class="v" id="sum_allowance">฿0</div></div>
-        <div class="stat"><div class="k">ค่าโอที (<span id="sum_otHours">0</span>ชม.)</div><div class="v" id="sum_ot">฿0</div></div>
-        <div class="stat"><div class="k">ค่าอาหาร OT (<span id="sum_otMealDays">0</span>ว.)</div><div class="v" id="sum_otMeal">฿0</div></div>
-        <div class="stat"><div class="k">โบนัสไม่ขาดงาน</div><div class="v" id="sum_bonus">฿0</div></div>
+        <div class="stat"><div class="k">เงินเดือนฐานประจำเดือน</div><div class="v money-mask" id="sum_base">฿0</div></div>
+        <div class="stat"><div class="k">โบนัสวันหยุด (<span id="sum_offDayCount">0</span>ว.)</div><div class="v money-mask" id="sum_offDayBonus">฿0</div></div>
+        <div class="stat"><div class="k">ค่าเดินทาง & เช่าบ้าน</div><div class="v money-mask" id="sum_allowance">฿0</div></div>
+        <div class="stat"><div class="k">ค่าโอที (<span id="sum_otHours">0</span>ชม.)</div><div class="v money-mask" id="sum_ot">฿0</div></div>
+        <div class="stat"><div class="k">ค่าอาหาร OT ≥2ชม. (<span id="sum_otMealDays">0</span>ว.)</div><div class="v money-mask" id="sum_otMeal">฿0</div></div>
+        <div class="stat"><div class="k">โบนัสไม่ขาดงาน</div><div class="v money-mask" id="sum_bonus">฿0</div></div>
 
-        <div class="stat deduct"><div class="k">หักสาย (<span id="sum_lateCount">0</span>ครั้ง/<span id="sum_lateHours">0</span>ชม.)</div><div class="v" id="sum_lateDeduct">-฿0</div></div>
-        <div class="stat deduct"><div class="k">หักประกันสังคม</div><div class="v" id="sum_ssoDeduct">-฿0</div></div>
+        <div class="stat deduct"><div class="k">หักลาป่วย (<span id="sum_sickCount">0</span>วัน)</div><div class="v money-mask" id="sum_sickDeduct">-฿0</div></div>
+        <div class="stat deduct"><div class="k">หักสาย (<span id="sum_lateCount">0</span>ครั้ง/<span id="sum_lateHours">0</span>ชม.)</div><div class="v money-mask" id="sum_lateDeduct">-฿0</div></div>
+        <div class="stat deduct"><div class="k">หักประกันสังคม</div><div class="v money-mask" id="sum_ssoDeduct">-฿0</div></div>
 
-        <div class="stat total"><div class="k">ยอดรับสุทธิประจำเดือน</div><div class="v" id="sum_total">฿0</div></div>
+        <div class="stat total"><div class="k">ยอดรับสุทธิประจำเดือน</div><div class="v money-mask" id="sum_total">฿0</div></div>
+      </div>
+    </section>
+
+    <!-- SALARY GOAL PLANNER -->
+    <section class="card" id="goalCard">
+      <h2>🎯 ตั้งเป้าหมายเงินเดือน</h2>
+      <p class="hint">ระบุยอดเงินที่ต้องการได้รับในงวดนี้ ระบบจะคำนวณจากเงินเดือนฐาน สวัสดิการ โบนัส และโอทีที่ทำไปแล้ว ว่าต้องทำโอทีเพิ่มอีกกี่ชั่วโมงถึงจะถึงเป้าหมาย</p>
+
+      <div class="grid" style="margin-bottom:18px;">
+        <div>
+          <label>เป้าหมายรายรับงวดนี้ (บาท)</label>
+          <input id="goal_amount" type="number" min="0" step="500" value="30000" oninput="onSalaryGoalChange()">
+        </div>
+        <div>
+          <label>คำนวณโอทีที่ต้องทำเพิ่มด้วยอัตรา</label>
+          <select id="goal_ot_type" onchange="onSalaryGoalChange()">
+            <option value="normal">โอทีวันทำงานปกติ</option>
+            <option value="offday">โอทีวันหยุด</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="tax-dashboard" style="margin-bottom:0;">
+        <div class="tax-dashboard-header">
+          <div>
+            <div class="eyebrow" style="margin-bottom:2px;">ความคืบหน้าสู่เป้าหมาย</div>
+            <div style="font-size:13px;color:#B9AF95;" class="money-mask" id="goal_status_text">กำลังคำนวณ...</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;background:rgba(255,255,255,.08);border-radius:20px;overflow:hidden;height:10px;">
+          <div id="goal_progress_bar" style="height:100%;width:0%;background:var(--amber);transition:width .3s ease;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#B9AF95;margin-top:6px;">
+          <span id="goal_progress_pct">0%</span>
+          <span id="goal_progress_amounts" class="money-mask">฿0 / ฿0</span>
+        </div>
+
+        <div class="tax-dash-grid">
+          <div class="tax-dash-item">
+            <div class="label">รายได้ปัจจุบัน (ไม่รวม OT)</div>
+            <div class="val money-mask" id="goal_base_income">฿0</div>
+          </div>
+          <div class="tax-dash-item">
+            <div class="label">รายได้จาก OT ที่ทำไปแล้ว (<span id="goal_ot_hours_done">0</span> ชม.)</div>
+            <div class="val money-mask" id="goal_ot_income">฿0</div>
+          </div>
+          <div class="tax-dash-item highlight">
+            <div class="label" id="goal_remaining_label">ต้องทำโอทีเพิ่มอีก</div>
+            <div class="val" id="goal_remaining_hours">0 ชม.</div>
+          </div>
+          <div class="tax-dash-item">
+            <div class="label" id="goal_per_day_label">เฉลี่ยต่อวันทำงานที่เหลือในงวด</div>
+            <div class="val" id="goal_per_day_hours">0 ชม./วัน</div>
+          </div>
+        </div>
+
+        <div class="eyebrow" style="margin:18px 0 8px;">สวัสดิการที่จะได้รับเพิ่มถ้ามาทำงานตามแผน</div>
+        <div class="tax-dash-grid">
+          <div class="tax-dash-item">
+            <div class="label">วันที่ต้องมาทำงาน (เหลือในงวด)</div>
+            <div class="val" id="goal_remaining_days">0 วัน</div>
+          </div>
+          <div class="tax-dash-item">
+            <div class="label">ค่าเดินทาง + ค่าเช่าบ้าน</div>
+            <div class="val money-mask" id="goal_travel_housing">฿0</div>
+          </div>
+          <div class="tax-dash-item">
+            <div class="label" id="goal_otmeal_label">ค่าอาหาร OT</div>
+            <div class="val money-mask" id="goal_otmeal">฿0</div>
+          </div>
+          <div class="tax-dash-item">
+            <div class="label" id="goal_diligence_label">เบี้ยขยัน (ถ้าไม่ขาดงานตลอดงวด)</div>
+            <div class="val money-mask" id="goal_diligence">฿0</div>
+          </div>
+        </div>
+
+        <div class="tax-dash-item highlight" style="margin-top:12px;">
+          <div class="label">ยอดสุทธิเมื่อจบงวด ถ้าทำตามแผนนี้ครบ</div>
+          <div class="val money-mask" id="goal_final_total" style="font-size:22px;">฿0</div>
+        </div>
       </div>
     </section>
   </div>
 
-  <!-- ================================================================= -->
-  <!-- CATEGORY 2: DEDICATED TAX PLANNING & DEDUCTION PAGE (PIT)         -->
-  <!-- ================================================================= -->
+  <!-- CATEGORY 2: DEDICATED TAX PLANNING & DEDUCTION PAGE (PIT) -->
   <div id="taxView" style="display:none;">
     
     <!-- TAX SUMMARY DASHBOARD -->
@@ -801,32 +1060,32 @@
       <div class="tax-dash-grid">
         <div class="tax-dash-item">
           <div class="label">รายได้รวมทั้งปี (Gross Income)</div>
-          <div class="val" id="td_gross">฿0</div>
+          <div class="val money-mask" id="td_gross">฿0</div>
         </div>
         <div class="tax-dash-item">
           <div class="label">หักค่าใช้จ่าย 50% (สูงสุด 100,000)</div>
-          <div class="val" id="td_expense">฿0</div>
+          <div class="val money-mask" id="td_expense">฿0</div>
         </div>
         <div class="tax-dash-item">
           <div class="label">รวมค่าลดหย่อนทั้งหมด (Total Deductions)</div>
-          <div class="val" id="td_totalDeduction">฿0</div>
+          <div class="val money-mask" id="td_totalDeduction">฿0</div>
         </div>
         <div class="tax-dash-item">
           <div class="label">เงินได้สุทธิคำนวณภาษี (Net Taxable)</div>
-          <div class="val" id="td_netTaxable">฿0</div>
+          <div class="val money-mask" id="td_netTaxable">฿0</div>
         </div>
         <div class="tax-dash-item highlight">
           <div class="label">ภาษีที่ต้องจ่ายจริงทั้งปี</div>
-          <div class="val" id="td_annualTax">฿0</div>
+          <div class="val money-mask" id="td_annualTax">฿0</div>
         </div>
         <div class="tax-dash-item">
           <div class="label">สถานะภาษี (ขอคืน / ชำระเพิ่ม)</div>
-          <div class="val" id="td_taxStatus" style="font-size:15px;color:var(--amber);">฿0</div>
+          <div class="val money-mask" id="td_taxStatus" style="font-size:15px;color:var(--amber);">฿0</div>
         </div>
       </div>
     </div>
 
-    <!-- TAX INPUT FORM (4 MAIN CATEGORIES WITH DETAILED TIPS) -->
+    <!-- TAX INPUT FORM -->
     <section class="card">
       
       <!-- หมวดที่ 1: รายได้พึงประเมิน & ลดหย่อนส่วนตัวและครอบครัว -->
@@ -1019,6 +1278,90 @@
     </section>
   </div>
 
+  <!-- CATEGORY 3: EXPENSE TRACKER (รายจ่ายประจำ & รายจ่ายรายวัน) -->
+  <div id="expenseView" style="display:none;">
+
+    <!-- SHARED EXPENSE GROUP -->
+    <section class="card">
+      <h2>🔗 กลุ่มรายจ่ายร่วม</h2>
+      <p class="hint">เชื่อมรายจ่ายกับอีกบัญชี (เช่น คู่รัก/ครอบครัว) เพื่อบันทึกและดูรายจ่ายร่วมกันแบบเรียลไทม์</p>
+      <div id="expenseGroupPanel"></div>
+    </section>
+
+    <!-- MONTHLY RECURRING EXPENSES -->
+    <section class="card">
+      <h2>🔁 รายจ่ายประจำ (รายเดือน)</h2>
+      <p class="hint">รายการที่จ่ายซ้ำทุกเดือนเป็นจำนวนคงที่ เช่น ค่าเช่าบ้าน ค่าผ่อนรถ ค่าอินเทอร์เน็ต ค่าประกัน — ระบบจะรวมยอดนี้ให้ทุกเดือนโดยอัตโนมัติ ไม่ต้องกรอกซ้ำ</p>
+
+      <div class="grid" style="margin-bottom:14px;">
+        <div><label>ชื่อรายการ</label><input id="e_m_name" type="text" placeholder="เช่น ค่าเช่าบ้าน"></div>
+        <div><label>จำนวนเงิน/เดือน (บาท)</label><input id="e_m_amount" type="number" min="0" step="1" placeholder="0"></div>
+      </div>
+      <div class="row-actions" style="justify-content:flex-start;margin-top:0;margin-bottom:16px;">
+        <button class="btn-primary" onclick="addMonthlyExpense()">+ เพิ่มรายการประจำ</button>
+      </div>
+
+      <div class="expense-list" id="monthlyExpenseList"></div>
+
+      <div class="summary-grid" style="margin-top:14px;">
+        <div class="stat total"><div class="k">รวมรายจ่ายประจำ / เดือน</div><div class="v money-mask" id="e_monthly_total">฿0</div></div>
+      </div>
+    </section>
+
+    <!-- DAILY EXPENSES -->
+    <section class="card">
+      <div class="monthbar">
+        <h2 style="margin:0;">🧾 รายจ่ายรายวัน</h2>
+        <div class="nav">
+          <button onclick="shiftExpenseMonth(-1)">‹</button>
+          <span class="label" id="expenseMonthLabel"></span>
+          <button onclick="shiftExpenseMonth(1)">›</button>
+        </div>
+      </div>
+      <p class="hint" style="margin-bottom:14px;">บันทึกรายจ่ายแต่ละวัน แยกตามหมวดหมู่ เพื่อดูภาพรวมการใช้จ่ายรายเดือน (แยกจากรายจ่ายประจำด้านบน)</p>
+
+      <div class="grid" style="margin-bottom:14px;">
+        <div><label>วันที่</label><input id="e_d_date" type="date"></div>
+        <div><label>หมวดหมู่</label>
+          <select id="e_d_category">
+            <option value="food">🍔 อาหาร</option>
+            <option value="transport">🚗 เดินทาง</option>
+            <option value="bills">🧾 บิล / ค่าน้ำค่าไฟ</option>
+            <option value="shopping">🛍️ ช้อปปิ้ง</option>
+            <option value="health">💊 สุขภาพ</option>
+            <option value="entertainment">🎬 บันเทิง</option>
+            <option value="education">📚 การศึกษา</option>
+            <option value="other">📦 อื่นๆ</option>
+          </select>
+        </div>
+        <div><label>รายละเอียด (ถ้ามี)</label><input id="e_d_note" type="text" placeholder="เช่น ข้าวเที่ยง"></div>
+        <div><label>จำนวนเงิน (บาท)</label><input id="e_d_amount" type="number" min="0" step="1" placeholder="0"></div>
+      </div>
+      <div class="row-actions" style="justify-content:flex-start;margin-top:0;margin-bottom:16px;">
+        <button class="btn-primary" onclick="addDailyExpense()">+ บันทึกรายจ่าย</button>
+      </div>
+
+      <div class="expense-list" id="dailyExpenseList"></div>
+
+      <div class="summary-grid" style="margin-top:14px;">
+        <div class="stat"><div class="k">จำนวนรายการเดือนนี้</div><div class="v" id="e_daily_count">0</div></div>
+        <div class="stat total"><div class="k">รวมรายจ่ายรายวันเดือนนี้</div><div class="v money-mask" id="e_daily_total">฿0</div></div>
+      </div>
+    </section>
+
+    <!-- GRAND TOTAL -->
+    <section class="card">
+      <h2>📊 สรุปรายจ่ายรวมของเดือนนี้</h2>
+      <p class="hint">รายจ่ายประจำ + รายจ่ายรายวัน ของเดือนที่กำลังดูอยู่ในตารางด้านบน</p>
+      <div class="summary-grid">
+        <div class="stat"><div class="k">รายจ่ายประจำ</div><div class="v money-mask" id="e_sum_monthly">฿0</div></div>
+        <div class="stat"><div class="k">รายจ่ายรายวัน</div><div class="v money-mask" id="e_sum_daily">฿0</div></div>
+        <div class="stat total"><div class="k">รวมรายจ่ายทั้งหมด</div><div class="v money-mask" id="e_sum_grand">฿0</div></div>
+      </div>
+    </section>
+
+  </div>
+
 </main>
 
 <!-- AUTH OVERLAY -->
@@ -1071,6 +1414,65 @@
   </div>
 </div>
 
+<!-- PIN LOCK OVERLAY -->
+<div class="pin-overlay" id="pinOverlay" onclick="handlePinOverlayClick(event)">
+  <div class="pin-box">
+    <button type="button" class="pin-close" id="pinCloseBtn" onclick="closePinOverlay()" style="display:none;">✕</button>
+
+    <!-- Numeric keypad panel -->
+    <div id="pinPadPanel">
+      <div class="pin-icon" id="pinIcon">🔒</div>
+      <h2 id="pinTitle">ใส่รหัส PIN</h2>
+      <p class="pin-subtitle" id="pinSubtitle">กรอกรหัส PIN 6 หลักเพื่อดูยอดเงินของคุณ</p>
+      <div class="pin-dots" id="pinDots">
+        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+        <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <div class="pin-keypad" id="pinKeypad">
+        <button type="button" class="pin-key" onclick="pinKeyPress('1')">1</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('2')">2</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('3')">3</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('4')">4</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('5')">5</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('6')">6</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('7')">7</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('8')">8</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('9')">9</button>
+        <button type="button" class="pin-key pin-key-empty">•</button>
+        <button type="button" class="pin-key" onclick="pinKeyPress('0')">0</button>
+        <button type="button" class="pin-key pin-key-del" onclick="pinKeyBackspace()">⌫</button>
+      </div>
+      <div class="pin-lockout" id="pinLockout" style="display:none;"></div>
+      <div class="pin-links" id="pinLinks">
+        <a id="pinForgotLink" onclick="startForgotPinFlow()">ลืมรหัส PIN?</a>
+      </div>
+    </div>
+
+    <!-- Identity verification panel (used for the forgot-PIN flow) -->
+    <div id="pinAuthPanel" class="pin-auth-panel" style="display:none;">
+      <div class="pin-icon">🔑</div>
+      <h2>ยืนยันตัวตนของคุณ</h2>
+      <p class="pin-subtitle">กรอกอีเมลและรหัสผ่านที่ใช้เข้าสู่ระบบ (Firebase) เพื่อยืนยันว่าเป็นคุณจริงๆ ก่อนตั้งรหัส PIN ใหม่</p>
+      <form id="pinAuthForm" onsubmit="handlePinReauthSubmit(event)">
+        <div class="form-group">
+          <label>อีเมล</label>
+          <input id="pin_verify_email" type="email" required>
+        </div>
+        <div class="form-group">
+          <label>รหัสผ่านบัญชี</label>
+          <input id="pin_verify_password" type="password" required minlength="6" placeholder="รหัสผ่านเข้าสู่ระบบเดิม">
+        </div>
+        <div class="auth-error" id="pinAuthError">อีเมลหรือรหัสผ่านไม่ถูกต้อง</div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:6px;padding:9px;">ยืนยันตัวตน</button>
+      </form>
+      <div class="pin-links">
+        <a class="pin-link-muted" onclick="cancelForgotPinFlow()">ยกเลิก กลับไปใส่ PIN</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ENTRY MODAL -->
 <div class="modal-overlay" id="entryModal" onclick="handleModalOverlayClick(event)">
   <div class="modal">
@@ -1083,7 +1485,7 @@
       <select id="modalStatus" onchange="updateModalLeaveHint()">
         <option value="work">มาทำงานปกติ</option>
         <option value="offday_work">มาทำงานวันหยุดประจำสัปดาห์ (โบนัส 1 เท่า + OT 3 เท่า)</option>
-        <option value="leave_sick">ลาป่วย (ได้รับค่าจ้าง)</option>
+        <option value="leave_sick">ลาป่วย</option>
         <option value="leave_business">ลากิจ (ได้รับค่าจ้าง)</option>
         <option value="leave_annual">ลาพักร้อน (ได้รับค่าจ้าง)</option>
         <option value="leave_unpaid">ลาไม่รับค่าจ้าง (Unpaid Leave)</option>
@@ -1135,7 +1537,7 @@
           <div><strong>ชื่อพนักงาน:</strong> <span id="ps_name">-</span></div>
           <div><strong>ตำแหน่ง:</strong> <span id="ps_position">-</span></div>
           <div><strong>เงินเดือนฐาน:</strong> <span id="ps_salary">-</span> บาท</div>
-          <div><strong>วันทำงาน/วันลาที่จ่าย:</strong> <span id="ps_days_worked">-</span> วัน</div>
+          <div><strong>วันทำงาน/วันลาตามสิทธิ์:</strong> <span id="ps_days_worked">-</span> วัน</div>
         </div>
 
         <table class="ps-table">
@@ -1156,18 +1558,18 @@
           <tfoot>
             <tr class="total-row">
               <td>รวมเงินได้ทั้งหมด</td>
-              <td class="right" id="ps_gross">-</td>
+              <td class="right money-mask" id="ps_gross">-</td>
             </tr>
             <tr class="total-row">
               <td>รวมรายการหักทั้งหมด</td>
-              <td class="right" id="ps_total_deduct">-</td>
+              <td class="right money-mask" id="ps_total_deduct">-</td>
             </tr>
           </tfoot>
         </table>
 
         <div class="ps-net-box">
           <span>ยอดรับสุทธิ (NET PAY)</span>
-          <span class="val" id="ps_net">-</span>
+          <span class="val money-mask" id="ps_net">-</span>
         </div>
       </div>
     </div>
@@ -1184,13 +1586,20 @@
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
     onAuthStateChanged, 
-    signOut 
+    signOut,
+    EmailAuthProvider,
+    reauthenticateWithCredential
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
   import { 
     getFirestore, 
     doc, 
     getDoc, 
-    setDoc 
+    setDoc,
+    updateDoc,
+    onSnapshot,
+    arrayUnion,
+    arrayRemove,
+    deleteField
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1206,8 +1615,37 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // ==========================================
+  // 🔔 ระบบแจ้งเตือน LINE (ผ่าน Google Apps Script)
+  // ==========================================
+  const LINE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbySk58sTuEU3n6usFvKrpQ_6DMTIa2YEsqX7vtG7KPbfeQqIKW1pgmmG7qBToaDEFp7aA/exec";
+
+  async function sendLineNotification(msg) {
+    if (!LINE_WEBAPP_URL) return;
+    try {
+      await fetch(LINE_WEBAPP_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ message: msg })
+      });
+    } catch (err) {
+      console.warn("แจ้งเตือน LINE ไม่สำเร็จ:", err);
+    }
+  }
+
   let currentUserUID = null;
   let currentUserEmail = null;
+
+  // ===== PIN lock system state =====
+  let userPinHash = null;
+  let pinBuffer = '';
+  let pinStage = null;
+  let pinFirstEntry = '';
+  let pinAttempts = 0;
+  let pinLockoutUntil = 0;
+  let pinLockoutTimer = null;
+  let pinAutoLockTimer = null;
+  const PIN_AUTO_LOCK_MS = 10 * 60 * 1000;
 
   let settings = {
     name: '',
@@ -1217,7 +1655,6 @@
     ot: 1.5,
     bonus: 1500,
     sso: 750,
-    leaveCounts: 'no',
     quotaSick: 30,
     quotaBusiness: 3,
     quotaAnnual: 6,
@@ -1225,17 +1662,58 @@
     housing: 45,
     otMeal: 50,
     offDay: 0,
-    offDayOt: 3
+    offDayOt: 3,
+    payCutoffDay: 21
   };
 
   let taxInputsData = {};
   let entries = [];
+  let expensesMonthly = [];
+  let expensesDaily = [];
+  let expenseGroupId = null;
+  let expenseGroupMembers = {};
+  let expenseGroupUnsub = null;
+  let expenseViewDate = new Date();
+  expenseViewDate.setDate(1);
   let viewDate = new Date();
   viewDate.setDate(1);
   let isSettingsOpen = false;
+  let viewDateInitialized = false;
   let currentPayrollData = null;
+  let salaryGoal = 30000;
+  let salaryGoalOtType = 'normal';
+  let goalSaveTimer = null;
 
   const thMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const thMonthsAbbr = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+
+  // --- Payroll cutoff period helpers ---
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function dateToStr(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
+  function getPayCutoffDay() {
+    const c = settings.payCutoffDay;
+    return (c && c >= 1 && c <= 28) ? c : 21;
+  }
+  function getPayPeriodRange(labelYear, labelMonth) {
+    const cutoff = getPayCutoffDay();
+    if (cutoff <= 1) {
+      return { start: new Date(labelYear, labelMonth, 1), end: new Date(labelYear, labelMonth + 1, 0) };
+    }
+    const start = new Date(labelYear, labelMonth - 1, cutoff);
+    const end = new Date(labelYear, labelMonth, cutoff - 1);
+    return { start, end };
+  }
+  function getCurrentPeriodLabel(refDate) {
+    const cutoff = getPayCutoffDay();
+    const d = refDate || new Date();
+    let labelMonth = d.getMonth();
+    let labelYear = d.getFullYear();
+    if (cutoff > 1 && d.getDate() >= cutoff) {
+      labelMonth += 1;
+      if (labelMonth > 11) { labelMonth = 0; labelYear += 1; }
+    }
+    return { labelYear, labelMonth };
+  }
   const dayNamesTh = ['วันอาทิตย์','วันจันทร์','วันอังคาร','วันพุธ','วันพฤหัสบดี','วันศุกร์','วันเสาร์'];
 
   const statusLabel = {
@@ -1250,12 +1728,27 @@
     absent: 'badge-absent', holiday: 'badge-holiday'
   };
 
-  // SWITCH MAIN TABS
+  const expenseCategoryLabel = {
+    food: '🍔 อาหาร', transport: '🚗 เดินทาง', bills: '🧾 บิล/ค่าน้ำค่าไฟ',
+    shopping: '🛍️ ช้อปปิ้ง', health: '💊 สุขภาพ', entertainment: '🎬 บันเทิง',
+    education: '📚 การศึกษา', other: '📦 อื่นๆ'
+  };
+
+  function getNumInput(id, defaultValue = 0) {
+    const el = document.getElementById(id);
+    if (!el || el.value.trim() === '') return defaultValue;
+    const val = parseFloat(el.value);
+    return isNaN(val) ? defaultValue : val;
+  }
+
   function switchMainTab(tab) {
     document.getElementById('btnTabAttendance').classList.toggle('active', tab === 'attendance');
     document.getElementById('btnTabTax').classList.toggle('active', tab === 'tax');
+    document.getElementById('btnTabExpense').classList.toggle('active', tab === 'expense');
     document.getElementById('attendanceView').style.display = (tab === 'attendance') ? 'block' : 'none';
     document.getElementById('taxView').style.display = (tab === 'tax') ? 'block' : 'none';
+    document.getElementById('expenseView').style.display = (tab === 'expense') ? 'block' : 'none';
+    if (tab === 'expense') renderExpenses();
   }
 
   onAuthStateChanged(auth, async (user) => {
@@ -1268,7 +1761,7 @@
       document.getElementById('userBadgeWrap').style.display = 'flex';
 
       const shortName = user.email.split('@')[0];
-      document.getElementById('hdr_userName').textContent = shortName;
+      document.getElementById('hdr_userName').textContent = settings.name || shortName;
       document.getElementById('hdr_userRole').textContent = user.email;
 
       await loadCloudUserData(user.uid);
@@ -1278,6 +1771,11 @@
       document.getElementById('authScreen').classList.add('open');
       document.getElementById('appMain').style.display = 'none';
       document.getElementById('userBadgeWrap').style.display = 'none';
+      document.getElementById('hdr_lockBtn').style.display = 'none';
+      userPinHash = null;
+      document.body.classList.remove('pin-locked');
+      document.getElementById('pinOverlay').classList.remove('open');
+      if (pinAutoLockTimer) { clearTimeout(pinAutoLockTimer); pinAutoLockTimer = null; }
     }
   });
 
@@ -1290,16 +1788,489 @@
         if (data.settings) settings = Object.assign(settings, data.settings);
         if (data.entries && Array.isArray(data.entries)) entries = data.entries;
         if (data.taxInputs) taxInputsData = data.taxInputs;
+        if (data.expensesMonthly && Array.isArray(data.expensesMonthly)) expensesMonthly = data.expensesMonthly;
+        if (data.expensesDaily && Array.isArray(data.expensesDaily)) expensesDaily = data.expensesDaily;
+        if (data.expenseGroupId) expenseGroupId = data.expenseGroupId;
+        if (data.salaryGoal !== undefined) salaryGoal = data.salaryGoal;
+        if (data.salaryGoalOtType) salaryGoalOtType = data.salaryGoalOtType;
+        userPinHash = data.pinHash || null;
       }
     } catch (e) {
       console.error("Load Firestore error:", e);
     }
 
+    if (!viewDateInitialized) {
+      const { labelYear, labelMonth } = getCurrentPeriodLabel(new Date());
+      viewDate = new Date(labelYear, labelMonth, 1);
+      expenseViewDate = new Date(labelYear, labelMonth, 1);
+      viewDateInitialized = true;
+    }
+
     fillSettingsForm();
     fillTaxForm();
+    fillGoalForm();
     updateSettingsUI();
     render();
+
+    if (expenseGroupId) {
+      attachExpenseGroupListener(expenseGroupId);
+    } else {
+      renderExpenses();
+    }
+
     calculateFullTax();
+    evaluatePinGate();
+  }
+
+  // ===================== PIN LOCK SYSTEM =====================
+
+  async function hashPin(pin) {
+    const enc = new TextEncoder().encode(pin + ':' + currentUserUID + ':sc-pin-v1');
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function evaluatePinGate() {
+    if (!currentUserUID) return;
+    renderPinSettingsUI();
+
+    if (!userPinHash) {
+      lockMoneyMask(false);
+      return;
+    }
+
+    const unlockedFlag = sessionStorage.getItem('scPinUnlocked_' + currentUserUID);
+    lockMoneyMask(unlockedFlag !== '1');
+  }
+
+  function lockMoneyMask(isLocked) {
+    document.body.classList.toggle('pin-locked', isLocked);
+    const lockBtn = document.getElementById('hdr_lockBtn');
+    if (lockBtn) {
+      if (!userPinHash) {
+        lockBtn.style.display = 'none';
+      } else {
+        lockBtn.style.display = 'inline-flex';
+        lockBtn.textContent = isLocked ? '🔓 ดูยอดเงิน' : '🔒 ซ่อนยอด';
+      }
+    }
+
+    if (isLocked || !userPinHash) {
+      if (pinAutoLockTimer) { clearTimeout(pinAutoLockTimer); pinAutoLockTimer = null; }
+    } else {
+      startPinAutoLockTimer();
+    }
+
+    applyMoneyMask();
+  }
+
+  function applyMoneyMask() {
+    const locked = document.body.classList.contains('pin-locked');
+    document.querySelectorAll('.money-mask').forEach(el => {
+      if (locked) {
+        if (el.dataset.real === undefined || (el.textContent !== '฿ ••••' && el.textContent !== '-฿ ••••')) {
+          el.dataset.real = el.textContent;
+        }
+        const isNegative = el.dataset.real.trim().startsWith('-');
+        el.textContent = (isNegative ? '-' : '') + '฿ ••••';
+      } else if (el.dataset.real !== undefined) {
+        el.textContent = el.dataset.real;
+        delete el.dataset.real;
+      }
+    });
+  }
+
+  function handleLockButtonClick() {
+    if (!userPinHash) return;
+    if (document.body.classList.contains('pin-locked')) {
+      openPinPad({
+        stage: 'unlock',
+        blocking: false,
+        icon: '🔓',
+        title: 'ใส่รหัส PIN',
+        subtitle: 'กรอกรหัส PIN 6 หลักเพื่อดูยอดเงินของคุณ',
+        showForgotLink: true,
+        showCloseBtn: true
+      });
+    } else {
+      lockMoneyView();
+    }
+  }
+
+  function lockMoneyView() {
+    if (!currentUserUID || !userPinHash) return;
+    sessionStorage.removeItem('scPinUnlocked_' + currentUserUID);
+    lockMoneyMask(true);
+  }
+
+  function startPinAutoLockTimer() {
+    if (pinAutoLockTimer) clearTimeout(pinAutoLockTimer);
+    if (!currentUserUID || !userPinHash) return;
+    pinAutoLockTimer = setTimeout(lockMoneyView, PIN_AUTO_LOCK_MS);
+  }
+
+  let pinLastActivityPing = 0;
+  function handleUserActivityForPin() {
+    if (!userPinHash) return;
+    if (document.body.classList.contains('pin-locked')) return;
+    const now = Date.now();
+    if (now - pinLastActivityPing < 5000) return;
+    pinLastActivityPing = now;
+    startPinAutoLockTimer();
+  }
+
+  function registerPinActivityListeners() {
+    ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'].forEach(evt => {
+      document.addEventListener(evt, handleUserActivityForPin, { passive: true });
+    });
+  }
+  registerPinActivityListeners();
+
+  function registerMoneyMaskClickToUnlock() {
+    document.addEventListener('click', (e) => {
+      if (!userPinHash) return;
+      if (!document.body.classList.contains('pin-locked')) return;
+      const target = e.target.closest('.money-mask');
+      if (!target) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openPinPad({
+        stage: 'unlock',
+        blocking: false,
+        icon: '🔓',
+        title: 'ใส่รหัส PIN',
+        subtitle: 'กรอกรหัส PIN 6 หลักเพื่อดูยอดเงินทั้งหมด',
+        showForgotLink: true,
+        showCloseBtn: true
+      });
+    }, true);
+  }
+  registerMoneyMaskClickToUnlock();
+
+  function renderPinSettingsUI() {
+    const setupBtn = document.getElementById('pin_setup_btn');
+    const changeBtn = document.getElementById('pin_change_btn');
+    const forgotBtn = document.getElementById('pin_forgot_btn');
+    const disableBtn = document.getElementById('pin_disable_btn');
+    const hint = document.getElementById('pin_settings_hint');
+    if (!setupBtn) return;
+    if (userPinHash) {
+      setupBtn.style.display = 'none';
+      changeBtn.style.display = 'inline-flex';
+      forgotBtn.style.display = 'inline-flex';
+      disableBtn.style.display = 'inline-flex';
+      hint.textContent = 'เปิดใช้งาน PIN อยู่ — ยอดเงินจะถูกซ่อนอัตโนมัติเมื่อไม่ได้ใช้งานเกิน 10 นาที จนกว่าจะใส่ PIN อีกครั้ง';
+    } else {
+      setupBtn.style.display = 'inline-flex';
+      changeBtn.style.display = 'none';
+      forgotBtn.style.display = 'none';
+      disableBtn.style.display = 'none';
+      hint.textContent = 'ยังไม่ได้ตั้ง PIN — ยอดเงินจะแสดงตามปกติ ตั้ง PIN ถ้าต้องการซ่อนยอดเงินจากคนอื่น';
+    }
+  }
+
+  function startSetupPinFlow() {
+    if (!currentUserUID) return;
+    openPinPad({
+      stage: 'setup1',
+      blocking: false,
+      icon: '🎉',
+      title: 'ตั้งรหัส PIN 6 หลัก',
+      subtitle: 'ใช้ซ่อนยอดเงินจากคนอื่น เมื่อไม่ได้ใช้งานเกิน 10 นาที ระบบจะซ่อนให้อัตโนมัติ',
+      showForgotLink: false,
+      showCloseBtn: true
+    });
+  }
+
+  function startChangePinFlow() {
+    if (!currentUserUID) return;
+    if (!userPinHash) { startSetupPinFlow(); return; }
+    openPinPad({
+      stage: 'change-current',
+      blocking: false,
+      icon: '🔐',
+      title: 'ยืนยันรหัส PIN เดิม',
+      subtitle: 'กรอกรหัส PIN ปัจจุบันของคุณก่อนตั้งรหัสใหม่',
+      showForgotLink: true,
+      showCloseBtn: true
+    });
+  }
+
+  function startDisablePinFlow() {
+    if (!currentUserUID || !userPinHash) return;
+    openPinPad({
+      stage: 'disable-current',
+      blocking: false,
+      icon: '🚫',
+      title: 'ปิดการใช้งาน PIN',
+      subtitle: 'กรอกรหัส PIN ปัจจุบัน เพื่อยืนยันการปิดระบบซ่อนยอดเงิน',
+      showForgotLink: true,
+      showCloseBtn: true
+    });
+  }
+
+  async function disablePin() {
+    try {
+      const userRef = doc(db, "users", currentUserUID);
+      await setDoc(userRef, { pinHash: null, updatedAt: new Date().toISOString() }, { merge: true });
+      userPinHash = null;
+      sessionStorage.removeItem('scPinUnlocked_' + currentUserUID);
+      lockMoneyMask(false);
+      closePinOverlay(true);
+      renderPinSettingsUI();
+      showPinToast('🚫 ปิดการใช้งาน PIN แล้ว');
+    } catch (err) {
+      shakePinDots('ปิดการใช้งาน PIN ไม่สำเร็จ: ' + err.message);
+    }
+  }
+
+  function startForgotPinFlow() {
+    closePinPadOnly();
+    document.getElementById('pinPadPanel').style.display = 'none';
+    document.getElementById('pinAuthPanel').style.display = 'block';
+    document.getElementById('pinAuthError').style.display = 'none';
+    document.getElementById('pin_verify_email').value = currentUserEmail || '';
+    document.getElementById('pin_verify_password').value = '';
+    const overlay = document.getElementById('pinOverlay');
+    overlay.classList.remove('blocking');
+    overlay.classList.add('dismissible', 'open');
+    document.getElementById('pinCloseBtn').style.display = userPinHash ? 'block' : 'none';
+  }
+
+  function cancelForgotPinFlow() {
+    document.getElementById('pinAuthPanel').style.display = 'none';
+    document.getElementById('pinPadPanel').style.display = 'block';
+    if (userPinHash) {
+      openPinPad({
+        stage: 'unlock',
+        blocking: document.body.classList.contains('pin-locked') && !sessionStorage.getItem('scPinUnlocked_' + currentUserUID),
+        icon: '🔒',
+        title: 'ใส่รหัส PIN',
+        subtitle: 'กรอกรหัส PIN 6 หลักเพื่อดูยอดเงินของคุณ',
+        showForgotLink: true,
+        showCloseBtn: true
+      });
+    } else {
+      closePinOverlay(true);
+    }
+  }
+
+  async function handlePinReauthSubmit(e) {
+    e.preventDefault();
+    const email = document.getElementById('pin_verify_email').value.trim();
+    const password = document.getElementById('pin_verify_password').value;
+    const errEl = document.getElementById('pinAuthError');
+    errEl.style.display = 'none';
+    try {
+      const cred = EmailAuthProvider.credential(email, password);
+      await reauthenticateWithCredential(auth.currentUser, cred);
+
+      document.getElementById('pinAuthPanel').style.display = 'none';
+      document.getElementById('pinPadPanel').style.display = 'block';
+      openPinPad({
+        stage: 'forgot-new1',
+        blocking: document.body.classList.contains('pin-locked') && !sessionStorage.getItem('scPinUnlocked_' + currentUserUID),
+        icon: '🆕',
+        title: 'ตั้งรหัส PIN ใหม่',
+        subtitle: 'ยืนยันตัวตนสำเร็จ! กำหนดรหัส PIN 6 หลักใหม่ของคุณ',
+        showForgotLink: false,
+        showCloseBtn: true
+      });
+    } catch (err) {
+      errEl.textContent = 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+      errEl.style.display = 'block';
+    }
+  }
+
+  function openPinPad(opts) {
+    pinBuffer = '';
+    pinFirstEntry = '';
+    pinStage = opts.stage;
+    pinAttempts = 0;
+
+    document.getElementById('pinAuthPanel').style.display = 'none';
+    document.getElementById('pinPadPanel').style.display = 'block';
+    document.getElementById('pinIcon').textContent = opts.icon;
+    document.getElementById('pinTitle').textContent = opts.title;
+    document.getElementById('pinSubtitle').textContent = opts.subtitle;
+    document.getElementById('pinError').textContent = '';
+    document.getElementById('pinLockout').style.display = 'none';
+    document.getElementById('pinForgotLink').style.display = opts.showForgotLink ? 'inline' : 'none';
+    document.getElementById('pinCloseBtn').style.display = opts.showCloseBtn ? 'block' : 'none';
+    renderPinDots();
+
+    const overlay = document.getElementById('pinOverlay');
+    overlay.classList.toggle('blocking', !!opts.blocking);
+    overlay.classList.toggle('dismissible', !opts.blocking);
+    overlay.classList.add('open');
+  }
+
+  function closePinPadOnly() {
+    pinBuffer = '';
+    pinFirstEntry = '';
+  }
+
+  function handlePinOverlayClick(e) {
+    if (e.target.id === 'pinOverlay') closePinOverlay(false);
+  }
+
+  function closePinOverlay(force) {
+    const overlay = document.getElementById('pinOverlay');
+    if (overlay.classList.contains('blocking') && !force) return;
+    overlay.classList.remove('open');
+    pinStage = null;
+    pinBuffer = '';
+    pinFirstEntry = '';
+  }
+
+  function renderPinDots() {
+    const dots = document.querySelectorAll('#pinDots .pin-dot');
+    dots.forEach((d, i) => d.classList.toggle('filled', i < pinBuffer.length));
+  }
+
+  function shakePinDots(message) {
+    const dotsEl = document.getElementById('pinDots');
+    dotsEl.classList.remove('shake');
+    void dotsEl.offsetWidth;
+    dotsEl.classList.add('shake');
+    document.getElementById('pinError').textContent = message || '';
+    pinBuffer = '';
+    renderPinDots();
+  }
+
+  function pinKeyBackspace() {
+    if (Date.now() < pinLockoutUntil) return;
+    pinBuffer = pinBuffer.slice(0, -1);
+    document.getElementById('pinError').textContent = '';
+    renderPinDots();
+  }
+
+  async function pinKeyPress(digit) {
+    if (Date.now() < pinLockoutUntil) return;
+    if (pinBuffer.length >= 6) return;
+    pinBuffer += digit;
+    renderPinDots();
+    if (pinBuffer.length === 6) {
+      await handlePinComplete();
+    }
+  }
+
+  async function handlePinComplete() {
+    const code = pinBuffer;
+
+    if (pinStage === 'setup1' || pinStage === 'change-new1' || pinStage === 'forgot-new1') {
+      pinFirstEntry = code;
+      pinBuffer = '';
+      renderPinDots();
+      const nextStage = pinStage === 'setup1' ? 'setup2' : (pinStage === 'change-new1' ? 'change-new2' : 'forgot-new2');
+      pinStage = nextStage;
+      document.getElementById('pinTitle').textContent = 'ยืนยันรหัส PIN อีกครั้ง';
+      document.getElementById('pinSubtitle').textContent = 'พิมพ์รหัส PIN 6 หลักเดิมอีกครั้งเพื่อยืนยัน';
+      return;
+    }
+
+    if (pinStage === 'setup2' || pinStage === 'change-new2' || pinStage === 'forgot-new2') {
+      if (code !== pinFirstEntry) {
+        shakePinDots('รหัส PIN ไม่ตรงกัน กรุณาลองใหม่');
+        pinFirstEntry = '';
+        const backStage = pinStage === 'setup2' ? 'setup1' : (pinStage === 'change-new2' ? 'change-new1' : 'forgot-new1');
+        pinStage = backStage;
+        document.getElementById('pinTitle').textContent = pinStage === 'setup1' ? 'ตั้งรหัส PIN 6 หลัก' : 'ตั้งรหัส PIN ใหม่';
+        document.getElementById('pinSubtitle').textContent = 'กำหนดรหัส PIN 6 หลักของคุณ';
+        return;
+      }
+      await savePinHash(code);
+      return;
+    }
+
+    if (pinStage === 'unlock') {
+      const hash = await hashPin(code);
+      if (hash === userPinHash) {
+        sessionStorage.setItem('scPinUnlocked_' + currentUserUID, '1');
+        lockMoneyMask(false);
+        closePinOverlay(true);
+        pinAttempts = 0;
+      } else {
+        pinAttempts++;
+        if (pinAttempts >= 5) {
+          startPinLockout(30);
+        } else {
+          shakePinDots(`รหัส PIN ไม่ถูกต้อง (ลองอีก ${5 - pinAttempts} ครั้ง)`);
+        }
+      }
+      return;
+    }
+
+    if (pinStage === 'change-current' || pinStage === 'disable-current') {
+      const hash = await hashPin(code);
+      if (hash === userPinHash) {
+        if (pinStage === 'disable-current') {
+          await disablePin();
+          return;
+        }
+        pinStage = 'change-new1';
+        pinBuffer = '';
+        renderPinDots();
+        document.getElementById('pinIcon').textContent = '🆕';
+        document.getElementById('pinTitle').textContent = 'ตั้งรหัส PIN ใหม่';
+        document.getElementById('pinSubtitle').textContent = 'กำหนดรหัส PIN 6 หลักใหม่ของคุณ';
+        document.getElementById('pinError').textContent = '';
+      } else {
+        pinAttempts++;
+        if (pinAttempts >= 5) {
+          startPinLockout(30);
+        } else {
+          shakePinDots(`รหัส PIN เดิมไม่ถูกต้อง (ลองอีก ${5 - pinAttempts} ครั้ง)`);
+        }
+      }
+      return;
+    }
+  }
+
+  function startPinLockout(seconds) {
+    pinAttempts = 0;
+    pinLockoutUntil = Date.now() + seconds * 1000;
+    const lockoutEl = document.getElementById('pinLockout');
+    const errEl = document.getElementById('pinError');
+    errEl.textContent = '';
+    pinBuffer = '';
+    renderPinDots();
+    lockoutEl.style.display = 'block';
+    if (pinLockoutTimer) clearInterval(pinLockoutTimer);
+    pinLockoutTimer = setInterval(() => {
+      const remain = Math.ceil((pinLockoutUntil - Date.now()) / 1000);
+      if (remain <= 0) {
+        clearInterval(pinLockoutTimer);
+        lockoutEl.style.display = 'none';
+      } else {
+        lockoutEl.textContent = `กรอกผิดหลายครั้งเกินไป กรุณารออีก ${remain} วินาที`;
+      }
+    }, 500);
+  }
+
+  async function savePinHash(newCode) {
+    try {
+      const hash = await hashPin(newCode);
+      const userRef = doc(db, "users", currentUserUID);
+      await setDoc(userRef, { pinHash: hash, updatedAt: new Date().toISOString() }, { merge: true });
+      userPinHash = hash;
+
+      sessionStorage.setItem('scPinUnlocked_' + currentUserUID, '1');
+      lockMoneyMask(false);
+      closePinOverlay(true);
+      showPinToast('✅ ตั้งรหัส PIN สำเร็จแล้ว');
+    } catch (err) {
+      shakePinDots('บันทึกรหัส PIN ไม่สำเร็จ: ' + err.message);
+    }
+  }
+
+  function showPinToast(msg) {
+    const msgEl = document.getElementById('saveMsg');
+    if (!msgEl) { alert(msg); return; }
+    const original = msgEl.textContent;
+    msgEl.textContent = msg;
+    msgEl.style.opacity = '1';
+    setTimeout(() => { msgEl.style.opacity = '0'; setTimeout(() => msgEl.textContent = original, 300); }, 2000);
   }
 
   async function saveSettings() {
@@ -1307,20 +2278,20 @@
     settings = {
       name: document.getElementById('s_name').value.trim(),
       position: document.getElementById('s_position').value.trim(),
-      salary: parseFloat(document.getElementById('s_salary').value) || 0,
-      hours: parseFloat(document.getElementById('s_hours').value) || 8,
-      ot: parseFloat(document.getElementById('s_ot').value) || 1.5,
-      bonus: parseFloat(document.getElementById('s_bonus').value) || 0,
-      sso: parseFloat(document.getElementById('s_sso').value) || 0,
-      leaveCounts: document.getElementById('s_leaveCounts').value,
-      quotaSick: parseFloat(document.getElementById('s_quota_sick').value) || 0,
-      quotaBusiness: parseFloat(document.getElementById('s_quota_biz').value) || 0,
-      quotaAnnual: parseFloat(document.getElementById('s_quota_annual').value) || 0,
-      travel: parseFloat(document.getElementById('s_travel').value) || 0,
-      housing: parseFloat(document.getElementById('s_housing').value) || 0,
-      otMeal: parseFloat(document.getElementById('s_otMeal').value) || 0,
+      salary: getNumInput('s_salary', 0),
+      hours: getNumInput('s_hours', 8),
+      ot: getNumInput('s_ot', 1.5),
+      bonus: getNumInput('s_bonus', 0),
+      sso: getNumInput('s_sso', 750),
+      quotaSick: getNumInput('s_quota_sick', 30),
+      quotaBusiness: getNumInput('s_quota_biz', 3),
+      quotaAnnual: getNumInput('s_quota_annual', 6),
+      travel: getNumInput('s_travel', 0),
+      housing: getNumInput('s_housing', 0),
+      otMeal: getNumInput('s_otMeal', 0),
       offDay: parseInt(document.getElementById('s_offDay').value, 10),
-      offDayOt: parseFloat(document.getElementById('s_offDayOt').value) || 3,
+      offDayOt: getNumInput('s_offDayOt', 3),
+      payCutoffDay: Math.min(28, Math.max(1, getNumInput('s_payCutoffDay', 21))),
     };
 
     try {
@@ -1328,8 +2299,8 @@
       await setDoc(userRef, { settings, updatedAt: new Date().toISOString() }, { merge: true });
       document.getElementById('hdr_userName').textContent = settings.name || currentUserEmail.split('@')[0];
       const msg = document.getElementById('saveMsg');
-      msg.style.opacity = 1;
-      setTimeout(() => msg.style.opacity = 0, 1600);
+      msg.style.opacity = '1';
+      setTimeout(() => msg.style.opacity = '0', 1600);
     } catch (e) {
       alert("บันทึกข้อมูลไม่สำเร็จ: " + e.message);
     }
@@ -1338,59 +2309,49 @@
     render();
   }
 
-  // COMPREHENSIVE PIT TAX CALCULATION FUNCTION
   function calculateFullTax() {
-    const income = parseFloat(document.getElementById('t_income').value) || (settings.salary * 12);
-    const withheld = parseFloat(document.getElementById('t_withheld').value) || 0;
+    const income = getNumInput('t_income', settings.salary * 12);
+    const withheld = getNumInput('t_withheld', 0);
     
-    // 1. Expense Deduction (50% max 100,000)
     const expense = Math.min(income * 0.5, 100000);
 
-    // 2. Category 1 Deductions
     const personal = 60000;
     const spouse = parseFloat(document.getElementById('t_spouse').value) || 0;
-    const childrenCount = parseFloat(document.getElementById('t_children').value) || 0;
+    const childrenCount = getNumInput('t_children', 0);
     const childrenDeduction = childrenCount * 30000;
-    const parentsCount = Math.min(parseFloat(document.getElementById('t_parents').value) || 0, 4);
+    const parentsCount = Math.min(getNumInput('t_parents', 0), 4);
     const parentsDeduction = parentsCount * 30000;
-    const disabledCount = parseFloat(document.getElementById('t_disabled').value) || 0;
+    const disabledCount = getNumInput('t_disabled', 0);
     const disabledDeduction = disabledCount * 60000;
 
-    // 3. Category 2 Deductions
-    const sso = Math.min(parseFloat(document.getElementById('t_sso').value) || (settings.sso * 12), 9000);
-    const lifeIns = Math.min(parseFloat(document.getElementById('t_lifeIns').value) || 0, 100000);
-    const healthIns = Math.min(parseFloat(document.getElementById('t_healthIns').value) || 0, 25000);
+    const sso = Math.min(getNumInput('t_sso', settings.sso * 12), 9000);
+    const lifeIns = Math.min(getNumInput('t_lifeIns', 0), 100000);
+    const healthIns = Math.min(getNumInput('t_healthIns', 0), 25000);
     const combinedLifeHealth = Math.min(lifeIns + healthIns, 100000);
 
-    const parentsHealth = Math.min(parseFloat(document.getElementById('t_parentsHealth').value) || 0, 15000);
-    const pvd = Math.min(parseFloat(document.getElementById('t_pvd').value) || 0, income * 0.15);
-    const rmf = Math.min(parseFloat(document.getElementById('t_rmf').value) || 0, income * 0.30);
-    const ssf = Math.min(parseFloat(document.getElementById('t_ssf').value) || 0, income * 0.30);
-    const pensionIns = Math.min(parseFloat(document.getElementById('t_pensionIns').value) || 0, income * 0.15, 200000);
+    const parentsHealth = Math.min(getNumInput('t_parentsHealth', 0), 15000);
+    const pvd = Math.min(getNumInput('t_pvd', 0), income * 0.15);
+    const rmf = Math.min(getNumInput('t_rmf', 0), income * 0.30);
+    const ssf = Math.min(getNumInput('t_ssf', 0), income * 0.30);
+    const pensionIns = Math.min(getNumInput('t_pensionIns', 0), income * 0.15, 200000);
 
-    // 4. Category 3 Deductions
-    const homeLoan = Math.min(parseFloat(document.getElementById('t_homeLoan').value) || 0, 100000);
-    const donateGeneral = parseFloat(document.getElementById('t_donateGeneral').value) || 0;
-    const donateEdu = (parseFloat(document.getElementById('t_donateEdu').value) || 0) * 2;
-    const donatePolitical = Math.min(parseFloat(document.getElementById('t_donatePolitical').value) || 0, 10000);
+    const homeLoan = Math.min(getNumInput('t_homeLoan', 0), 100000);
+    const donateGeneral = getNumInput('t_donateGeneral', 0);
+    const donateEdu = getNumInput('t_donateEdu', 0) * 2;
+    const donatePolitical = Math.min(getNumInput('t_donatePolitical', 0), 10000);
 
-    // 5. Category 4 Deductions
-    const easyReceipt = Math.min(parseFloat(document.getElementById('t_easyReceipt').value) || 0, 50000);
+    const easyReceipt = Math.min(getNumInput('t_easyReceipt', 0), 50000);
 
-    // Total Deductions Before Donations
     const baseDeductions = personal + spouse + childrenDeduction + parentsDeduction + disabledDeduction
       + sso + combinedLifeHealth + parentsHealth + pvd + rmf + ssf + pensionIns + homeLoan + easyReceipt;
 
     const netBeforeDonation = Math.max(0, income - expense - baseDeductions);
-    
-    // Donation cap: 10% of net before donation
     const maxDonationAllowed = netBeforeDonation * 0.10;
     const actualDonation = Math.min(donateGeneral + donateEdu + donatePolitical, maxDonationAllowed);
 
     const totalDeductions = baseDeductions + actualDonation;
     const netTaxable = Math.max(0, income - expense - totalDeductions);
 
-    // PIT Progressive Brackets Calculation
     let annualTax = 0;
     let remain = netTaxable;
 
@@ -1414,7 +2375,6 @@
 
     const diff = annualTax - withheld;
 
-    // Update Dashboard UI
     document.getElementById('td_gross').textContent = fmtBaht(income);
     document.getElementById('td_expense').textContent = fmtBaht(expense);
     document.getElementById('td_totalDeduction').textContent = fmtBaht(totalDeductions);
@@ -1432,6 +2392,7 @@
       statusEl.textContent = 'พอดี (ไม่ต้องจ่ายเพิ่ม/ไม่ได้คืน)';
       statusEl.style.color = '#FBBF24';
     }
+    applyMoneyMask();
   }
 
   async function saveTaxInputs() {
@@ -1496,7 +2457,6 @@
     document.getElementById('s_ot').value = settings.ot;
     document.getElementById('s_bonus').value = settings.bonus;
     document.getElementById('s_sso').value = settings.sso !== undefined ? settings.sso : 750;
-    document.getElementById('s_leaveCounts').value = settings.leaveCounts;
     document.getElementById('s_quota_sick').value = settings.quotaSick !== undefined ? settings.quotaSick : 30;
     document.getElementById('s_quota_biz').value = settings.quotaBusiness !== undefined ? settings.quotaBusiness : 3;
     document.getElementById('s_quota_annual').value = settings.quotaAnnual !== undefined ? settings.quotaAnnual : 6;
@@ -1505,6 +2465,7 @@
     document.getElementById('s_otMeal').value = settings.otMeal;
     document.getElementById('s_offDay').value = settings.offDay;
     document.getElementById('s_offDayOt').value = settings.offDayOt;
+    document.getElementById('s_payCutoffDay').value = settings.payCutoffDay !== undefined ? settings.payCutoffDay : 21;
   }
 
   function updateSettingsUI() {
@@ -1523,6 +2484,162 @@
     const daily = settings.salary > 0 ? (settings.salary / 30) : 0;
     const empName = settings.name ? settings.name : (currentUserEmail ? currentUserEmail.split('@')[0] : 'พนักงาน');
     summary.textContent = `${empName} • ฿${Number(settings.salary).toLocaleString('th-TH')} (เฉลี่ยวันละ ฿${Math.round(daily).toLocaleString('th-TH')})`;
+  }
+
+  function fillGoalForm() {
+    const amountEl = document.getElementById('goal_amount');
+    const typeEl = document.getElementById('goal_ot_type');
+    if (amountEl) amountEl.value = salaryGoal;
+    if (typeEl) typeEl.value = salaryGoalOtType;
+  }
+
+  function onSalaryGoalChange() {
+    salaryGoal = getNumInput('goal_amount', 0);
+    const typeEl = document.getElementById('goal_ot_type');
+    salaryGoalOtType = typeEl ? typeEl.value : 'normal';
+    renderSalaryGoal();
+
+    if (!currentUserUID) return;
+    clearTimeout(goalSaveTimer);
+    goalSaveTimer = setTimeout(async () => {
+      try {
+        const userRef = doc(db, "users", currentUserUID);
+        await setDoc(userRef, { salaryGoal, salaryGoalOtType }, { merge: true });
+      } catch (e) {
+        console.error("Save salary goal error:", e);
+      }
+    }, 600);
+  }
+
+  function renderSalaryGoal() {
+    const goalEl = document.getElementById('goal_amount');
+    if (!goalEl || !currentPayrollData) return;
+
+    const goal = getNumInput('goal_amount', salaryGoal);
+    const typeEl = document.getElementById('goal_ot_type');
+    const otType = typeEl ? typeEl.value : salaryGoalOtType;
+    const otRate = otType === 'offday' ? settings.offDayOt : settings.ot;
+
+    const { netTotal, otPay, totalOtHours, hourlyRate } = currentPayrollData;
+    const baseIncome = Math.max(0, netTotal - otPay);
+    const remainingPay = goal - netTotal;
+
+    document.getElementById('goal_base_income').textContent = fmtBaht(baseIncome);
+    document.getElementById('goal_ot_income').textContent = fmtBaht(otPay);
+    document.getElementById('goal_ot_hours_done').textContent = totalOtHours;
+
+    const pct = goal > 0 ? Math.min(100, Math.round((netTotal / goal) * 100)) : 0;
+    document.getElementById('goal_progress_bar').style.width = pct + '%';
+    document.getElementById('goal_progress_pct').textContent = pct + '%';
+    document.getElementById('goal_progress_amounts').textContent = `${fmtBaht(netTotal)} / ${fmtBaht(goal)}`;
+
+    const y = viewDate.getFullYear();
+    const m = viewDate.getMonth();
+    const { end: periodEnd } = getPayPeriodRange(y, m);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let remainingWorkDays = 0;
+    const cursor = new Date(today);
+    cursor.setDate(cursor.getDate() + 1);
+    while (cursor <= periodEnd) {
+      if (cursor.getDay() !== settings.offDay) remainingWorkDays++;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    document.getElementById('goal_remaining_days').textContent = remainingWorkDays + ' วัน';
+
+    const remLabelEl = document.getElementById('goal_remaining_label');
+    const remHoursEl = document.getElementById('goal_remaining_hours');
+    const perDayLabelEl = document.getElementById('goal_per_day_label');
+    const perDayEl = document.getElementById('goal_per_day_hours');
+    const statusEl = document.getElementById('goal_status_text');
+    const travelHousingEl = document.getElementById('goal_travel_housing');
+    const otMealEl = document.getElementById('goal_otmeal');
+    const otMealLabelEl = document.getElementById('goal_otmeal_label');
+    const diligenceEl = document.getElementById('goal_diligence');
+    const diligenceLabelEl = document.getElementById('goal_diligence_label');
+    const finalTotalEl = document.getElementById('goal_final_total');
+
+    const { hasDisqualification } = currentPayrollData;
+    diligenceEl.textContent = fmtBaht(hasDisqualification ? 0 : settings.bonus);
+    diligenceLabelEl.textContent = hasDisqualification
+      ? 'เบี้ยขยัน (ขาดงานไปแล้วในงวดนี้)'
+      : 'เบี้ยขยัน (ถ้าไม่ขาดงานตลอดงวด)';
+
+    if (remainingPay <= 0) {
+      remLabelEl.textContent = '🎉 ถึงเป้าหมายแล้ว';
+      remHoursEl.classList.add('money-mask');
+      remHoursEl.textContent = 'เกิน ' + fmtBaht(Math.abs(remainingPay));
+      perDayLabelEl.textContent = 'เฉลี่ยต่อวันทำงานที่เหลือในงวด';
+      perDayEl.textContent = '—';
+      statusEl.textContent = `ยอดรวมตอนนี้ถึงเป้าหมาย ${fmtBaht(goal)} แล้ว 🎉`;
+      travelHousingEl.textContent = fmtBaht(0);
+      otMealLabelEl.textContent = 'ค่าอาหาร OT';
+      otMealEl.textContent = fmtBaht(0);
+      finalTotalEl.textContent = fmtBaht(netTotal);
+      applyMoneyMask();
+      return;
+    }
+
+    if (hourlyRate <= 0 || otRate <= 0) {
+      remLabelEl.textContent = 'ต้องทำโอทีเพิ่มอีก';
+      remHoursEl.classList.remove('money-mask');
+      remHoursEl.textContent = '— ชม.';
+      perDayLabelEl.textContent = 'เฉลี่ยต่อวันทำงานที่เหลือในงวด';
+      perDayEl.textContent = '—';
+      statusEl.textContent = 'กรุณาตรวจสอบเงินเดือนฐาน/ชั่วโมงทำงานในหัวข้อตั้งค่าก่อน';
+      travelHousingEl.textContent = fmtBaht(0);
+      otMealEl.textContent = fmtBaht(0);
+      finalTotalEl.textContent = fmtBaht(netTotal);
+      applyMoneyMask();
+      return;
+    }
+
+    const otMealPerDay = settings.otMeal || 0;
+    const dailyAllowance = (settings.travel || 0) + (settings.housing || 0);
+    const projectedAllowanceBenefit = remainingWorkDays * dailyAllowance;
+
+    const remainingAfterAllowance = Math.max(0, remainingPay - projectedAllowanceBenefit);
+    const neededHoursNoMeal = remainingAfterAllowance / (hourlyRate * otRate);
+    const perDayNoMeal = remainingWorkDays > 0 ? (neededHoursNoMeal / remainingWorkDays) : 0;
+    const qualifiesForOtMeal = perDayNoMeal >= 2;
+
+    const projectedOtMealBenefit = qualifiesForOtMeal ? remainingWorkDays * otMealPerDay : 0;
+    const projectedDailyBenefits = projectedOtMealBenefit + projectedAllowanceBenefit;
+    const remainingPayAfterBenefits = Math.max(0, remainingPay - projectedDailyBenefits);
+
+    const neededHours = remainingPayAfterBenefits / (hourlyRate * otRate);
+    const neededHoursRounded = Math.ceil(neededHours * 10) / 10;
+
+    remLabelEl.textContent = 'ต้องทำโอทีเพิ่มอีก';
+    remHoursEl.classList.remove('money-mask');
+    remHoursEl.textContent = `${neededHoursRounded} ชม.`;
+
+    if (remainingWorkDays > 0) {
+      const perDay = Math.ceil((neededHours / remainingWorkDays) * 10) / 10;
+      perDayLabelEl.textContent = `เฉลี่ยต่อวันทำงานที่เหลือ (${remainingWorkDays} วัน)`;
+      perDayEl.textContent = `${perDay} ชม./วัน`;
+    } else {
+      perDayLabelEl.textContent = 'วันทำงานที่เหลือในงวดนี้';
+      perDayEl.textContent = '0 วัน';
+    }
+
+    if (projectedDailyBenefits > 0 && remainingWorkDays > 0) {
+      const mealNote = qualifiesForOtMeal
+        ? `รวมค่าอาหาร OT ด้วย เพราะแผนนี้ต้องทำโอทีเฉลี่ยถึง 2 ชม./วันขึ้นไป`
+        : `ไม่รวมค่าอาหาร OT เพราะแผนนี้ทำโอทีเฉลี่ยยังไม่ถึง 2 ชม./วัน`;
+      statusEl.textContent = `ขาดอีก ${fmtBaht(remainingPay)} (รวมสวัสดิการรายวันที่จะได้รับจากการมาทำงาน ${remainingWorkDays} วันที่เหลือ ${fmtBaht(projectedDailyBenefits)} แล้ว — ${mealNote} — เหลือทำโอทีปิดส่วนต่างอีก ${fmtBaht(remainingPayAfterBenefits)}) เพื่อให้ถึงเป้าหมาย ${fmtBaht(goal)}`;
+    } else {
+      statusEl.textContent = `ขาดอีก ${fmtBaht(remainingPay)} เพื่อให้ถึงเป้าหมาย ${fmtBaht(goal)}`;
+    }
+
+    travelHousingEl.textContent = fmtBaht(projectedAllowanceBenefit);
+    otMealLabelEl.textContent = qualifiesForOtMeal ? 'ค่าอาหาร OT (เข้าเงื่อนไข ≥2ชม./วัน)' : 'ค่าอาหาร OT (แผนนี้ยังไม่ถึง 2ชม./วัน)';
+    otMealEl.textContent = fmtBaht(projectedOtMealBenefit);
+
+    const otPayFromPlan = neededHoursRounded * hourlyRate * otRate;
+    const projectedFinalTotal = netTotal + projectedDailyBenefits + otPayFromPlan;
+    finalTotalEl.textContent = fmtBaht(projectedFinalTotal);
+    applyMoneyMask();
   }
 
   function toggleSettings() {
@@ -1570,7 +2687,10 @@
   }
 
   async function handleLogout() {
-    if (confirm('ต้องการออกจากระบบใช่หรือไม่?')) await signOut(auth);
+    if (confirm('ต้องการออกจากระบบใช่หรือไม่?')) {
+      if (expenseGroupUnsub) { expenseGroupUnsub(); expenseGroupUnsub = null; }
+      await signOut(auth);
+    }
   }
 
   function shiftMonth(delta) {
@@ -1615,7 +2735,7 @@
     const status = document.getElementById('modalStatus').value;
     const hintEl = document.getElementById('modalLeaveHint');
     const y = viewDate.getFullYear();
-    const yearEntries = entries.filter(en => new Date(en.date+'T00:00:00').getFullYear() === y);
+    const yearEntries = entries.filter(en => en.date && parseInt(en.date.split('-')[0], 10) === y);
 
     if (status === 'leave_sick') {
       const used = yearEntries.filter(e => e.status === 'leave_sick').length;
@@ -1637,8 +2757,8 @@
   async function saveModalEntry() {
     const date = document.getElementById('modalDate').value;
     const status = document.getElementById('modalStatus').value;
-    const ot = parseFloat(document.getElementById('modalOt').value) || 0;
-    const late = parseFloat(document.getElementById('modalLate').value) || 0;
+    const ot = getNumInput('modalOt', 0);
+    const late = getNumInput('modalLate', 0);
 
     entries = entries.filter(e => e.date !== date);
     entries.push({ date, status, ot, late });
@@ -1647,6 +2767,14 @@
     await persistEntries();
     closeModal();
     render();
+
+    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE
+    const thStatus = statusLabel[status] || status;
+    const empName = settings.name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'พนักงาน');
+    let lineMsg = `📌 บันทึกเวลาทำงาน (${empName})\n📅 วันที่: ${date}\nสถานะ: ${thStatus}`;
+    if (ot > 0) lineMsg += `\n⏱️ ทำ OT: ${ot} ชม.`;
+    if (late > 0) lineMsg += `\n⚠️ สาย: ${late} นาที`;
+    sendLineNotification(lineMsg);
   }
 
   async function deleteModalEntry() {
@@ -1658,7 +2786,7 @@
   }
 
   function backupData() {
-    const data = { user: currentUserEmail, settings, entries, taxInputs: taxInputsData, exportedAt: new Date().toISOString() };
+    const data = { user: currentUserEmail, settings, entries, taxInputs: taxInputsData, expensesMonthly, expensesDaily, exportedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1678,12 +2806,15 @@
         if (data.settings) settings = Object.assign(settings, data.settings);
         if (data.entries) entries = data.entries;
         if (data.taxInputs) taxInputsData = data.taxInputs;
+        if (data.expensesMonthly && Array.isArray(data.expensesMonthly)) expensesMonthly = data.expensesMonthly;
+        if (data.expensesDaily && Array.isArray(data.expensesDaily)) expensesDaily = data.expensesDaily;
         if (currentUserUID) {
-          await setDoc(doc(db, "users", currentUserUID), { settings, entries, taxInputs: taxInputsData }, { merge: true });
+          await setDoc(doc(db, "users", currentUserUID), { settings, entries, taxInputs: taxInputsData, expensesMonthly, expensesDaily }, { merge: true });
         }
         fillSettingsForm();
         fillTaxForm();
         render();
+        renderExpenses();
         calculateFullTax();
         alert('กู้คืนข้อมูลสำเร็จ');
       } catch (err) { alert('ไฟล์ไม่ถูกต้อง'); }
@@ -1694,12 +2825,13 @@
   function exportMonthlyCSV() {
     const y = viewDate.getFullYear();
     const m = viewDate.getMonth();
-    const monthEntries = entries.filter(en => {
-      const d = new Date(en.date+'T00:00:00');
-      return d.getFullYear() === y && d.getMonth() === m;
-    });
+    const { start: periodStart, end: periodEnd } = getPayPeriodRange(y, m);
+    const periodStartStr = dateToStr(periodStart);
+    const periodEndStr = dateToStr(periodEnd);
+    const monthEntries = entries.filter(en => en.date && en.date >= periodStartStr && en.date <= periodEndStr);
 
-    let csv = 'วันที่,สถานะ,ชั่วโมง OT,มาสาย (นาที)\n';
+    let csv = `งวด,${periodStartStr} ถึง ${periodEndStr}\n`;
+    csv += 'วันที่,สถานะ,ชั่วโมง OT,มาสาย (นาที)\n';
     monthEntries.forEach(en => {
       csv += `"${en.date}","${statusLabel[en.status]||en.status}",${en.ot||0},${en.late||0}\n`;
     });
@@ -1708,7 +2840,7 @@
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `attendance_${thMonths[m]}_${y+543}.csv`;
+    a.download = `attendance_${thMonths[m]}_${y+543}_${periodStartStr}_to_${periodEndStr}.csv`;
     a.click();
   }
 
@@ -1717,23 +2849,33 @@
     const p = currentPayrollData;
     const m = viewDate.getMonth();
     const y = viewDate.getFullYear();
+    const cutoff = getPayCutoffDay();
 
-    document.getElementById('ps_period').textContent = `ประจำงวด: ${thMonths[m]} ${y+543}`;
+    if (cutoff > 1) {
+      const { start: periodStart, end: periodEnd } = getPayPeriodRange(y, m);
+      const rangeText = `${periodStart.getDate()} ${thMonthsAbbr[periodStart.getMonth()]} ${periodStart.getFullYear()+543} – ${periodEnd.getDate()} ${thMonthsAbbr[periodEnd.getMonth()]} ${periodEnd.getFullYear()+543}`;
+      document.getElementById('ps_period').textContent = `ประจำงวด: ${rangeText} (${thMonths[m]} ${y+543})`;
+    } else {
+      document.getElementById('ps_period').textContent = `ประจำงวด: ${thMonths[m]} ${y+543}`;
+    }
     document.getElementById('ps_name').textContent = settings.name || currentUserEmail.split('@')[0];
     document.getElementById('ps_position').textContent = settings.position || 'พนักงาน';
     document.getElementById('ps_salary').textContent = Number(settings.salary).toLocaleString('th-TH');
     document.getElementById('ps_days_worked').textContent = p.payableDays;
 
-    let incomeHtml = `<tr><td>เงินเดือนตามวันทำงาน (${p.payableDays} วัน)</td><td class="right">${fmtBaht(p.basePay)}</td></tr>`;
-    if (p.offDayBonus > 0) incomeHtml += `<tr><td>โบนัสวันหยุด (${p.offDayWorkedDays} วัน)</td><td class="right">${fmtBaht(p.offDayBonus)}</td></tr>`;
-    if (p.otPay > 0) incomeHtml += `<tr><td>ค่าล่วงเวลา / OT (${p.totalOtHours} ชม.)</td><td class="right">${fmtBaht(p.otPay)}</td></tr>`;
-    if (p.allowancePay > 0) incomeHtml += `<tr><td>ค่าเดินทาง & ค่าเช่าบ้าน</td><td class="right">${fmtBaht(p.allowancePay)}</td></tr>`;
-    if (p.bonusPay > 0) incomeHtml += `<tr><td>เบี้ยขยัน</td><td class="right">${fmtBaht(p.bonusPay)}</td></tr>`;
+    let incomeHtml = `<tr><td>เงินเดือนฐานประจำเดือน</td><td class="right money-mask">${fmtBaht(p.basePay)}</td></tr>`;
+    if (p.offDayBonus > 0) incomeHtml += `<tr><td>โบนัสวันหยุด (${p.offDayWorkedDays} วัน)</td><td class="right money-mask">${fmtBaht(p.offDayBonus)}</td></tr>`;
+    if (p.otPay > 0) incomeHtml += `<tr><td>ค่าล่วงเวลา / OT (${p.totalOtHours} ชม.)</td><td class="right money-mask">${fmtBaht(p.otPay)}</td></tr>`;
+    if (p.allowancePay > 0) incomeHtml += `<tr><td>ค่าเดินทาง & ค่าเช่าบ้าน</td><td class="right money-mask">${fmtBaht(p.allowancePay)}</td></tr>`;
+    if (p.otMealPay > 0) incomeHtml += `<tr><td>ค่าอาหาร OT (โอที ≥2ชม./วัน)</td><td class="right money-mask">${fmtBaht(p.otMealPay)}</td></tr>`;
+    if (p.bonusPay > 0) incomeHtml += `<tr><td>เบี้ยขยัน</td><td class="right money-mask">${fmtBaht(p.bonusPay)}</td></tr>`;
     document.getElementById('ps_income_rows').innerHTML = incomeHtml;
 
     let deductHtml = '';
-    if (p.lateDeduction > 0) deductHtml += `<tr><td>หักมาสาย</td><td class="right">-${fmtBaht(p.lateDeduction)}</td></tr>`;
-    if (p.ssoDeduction > 0) deductHtml += `<tr><td>หักประกันสังคม</td><td class="right">-${fmtBaht(p.ssoDeduction)}</td></tr>`;
+    if (p.sickDeduction > 0) deductHtml += `<tr><td>หักวันลาป่วย (${p.sickLeaveDays} วัน)</td><td class="right money-mask">-${fmtBaht(p.sickDeduction)}</td></tr>`;
+    if (p.unpaidDeduction > 0) deductHtml += `<tr><td>หักลาไม่รับเงิน/ขาดงาน</td><td class="right money-mask">-${fmtBaht(p.unpaidDeduction)}</td></tr>`;
+    if (p.lateDeduction > 0) deductHtml += `<tr><td>หักมาสาย</td><td class="right money-mask">-${fmtBaht(p.lateDeduction)}</td></tr>`;
+    if (p.ssoDeduction > 0) deductHtml += `<tr><td>หักประกันสังคม</td><td class="right money-mask">-${fmtBaht(p.ssoDeduction)}</td></tr>`;
     document.getElementById('ps_deduct_rows').innerHTML = deductHtml || `<tr><td>ไม่มีรายการหัก</td><td class="right">฿0</td></tr>`;
 
     document.getElementById('ps_gross').textContent = fmtBaht(p.grossPay);
@@ -1741,6 +2883,7 @@
     document.getElementById('ps_net').textContent = fmtBaht(p.netTotal);
 
     document.getElementById('payslipModal').classList.add('open');
+    applyMoneyMask();
   }
 
   function closePayslipModal() { document.getElementById('payslipModal').classList.remove('open'); }
@@ -1749,20 +2892,45 @@
   function render() {
     const y = viewDate.getFullYear();
     const m = viewDate.getMonth();
-    document.getElementById('monthLabel').textContent = thMonths[m] + ' ' + (y + 543);
+    const { start: periodStart, end: periodEnd } = getPayPeriodRange(y, m);
+    const cutoff = getPayCutoffDay();
 
-    const monthEntries = entries.filter(en => {
-      const d = new Date(en.date+'T00:00:00');
-      return d.getFullYear() === y && d.getMonth() === m;
-    });
+    if (cutoff > 1) {
+      const rangeText = `${periodStart.getDate()} ${thMonthsAbbr[periodStart.getMonth()]} – ${periodEnd.getDate()} ${thMonthsAbbr[periodEnd.getMonth()]} ${periodEnd.getFullYear() + 543}`;
+      document.getElementById('monthLabel').innerHTML = `${thMonths[m]} ${y + 543}<div class="period-range mono">งวด ${rangeText}</div>`;
+    } else {
+      document.getElementById('monthLabel').textContent = thMonths[m] + ' ' + (y + 543);
+    }
+
+    const yearEntries = entries.filter(en => en.date && parseInt(en.date.split('-')[0], 10) === y);
+    const usedSickYear = yearEntries.filter(e => e.status === 'leave_sick').length;
+    const usedBizYear = yearEntries.filter(e => e.status === 'leave_business').length;
+    const usedVacYear = yearEntries.filter(e => e.status === 'leave_annual').length;
+
+    const qSick = settings.quotaSick !== undefined ? settings.quotaSick : 30;
+    const qBiz = settings.quotaBusiness !== undefined ? settings.quotaBusiness : 3;
+    const qVac = settings.quotaAnnual !== undefined ? settings.quotaAnnual : 6;
+
+    document.getElementById('quota_sick_display').textContent = `${usedSickYear} / ${qSick} วัน`;
+    document.getElementById('quota_sick_remain').textContent = `คงเหลือ ${Math.max(0, qSick - usedSickYear)} วัน`;
+
+    document.getElementById('quota_biz_display').textContent = `${usedBizYear} / ${qBiz} วัน`;
+    document.getElementById('quota_biz_remain').textContent = `คงเหลือ ${Math.max(0, qBiz - usedBizYear)} วัน`;
+
+    document.getElementById('quota_vac_display').textContent = `${usedVacYear} / ${qVac} วัน`;
+    document.getElementById('quota_vac_remain').textContent = `คงเหลือ ${Math.max(0, qVac - usedVacYear)} วัน`;
+
+    const periodStartStr = dateToStr(periodStart);
+    const periodEndStr = dateToStr(periodEnd);
+    const monthEntries = entries.filter(en => en.date && en.date >= periodStartStr && en.date <= periodEndStr);
 
     const entryMap = {};
     monthEntries.forEach(en => { entryMap[en.date] = en; });
 
     const calGrid = document.getElementById('calendarGrid');
     calGrid.innerHTML = '';
-    const firstDayIndex = new Date(y, m, 1).getDay();
-    const totalDaysInMonth = new Date(y, m + 1, 0).getDate();
+    const firstDayIndex = periodStart.getDay();
+    const totalDaysInPeriod = Math.round((periodEnd - periodStart) / 86400000) + 1;
     const todayStr = new Date().toISOString().slice(0,10);
 
     for (let i = 0; i < firstDayIndex; i++) {
@@ -1771,17 +2939,25 @@
       calGrid.appendChild(empty);
     }
 
-    for (let day = 1; day <= totalDaysInMonth; day++) {
-      const dStr = `${y}-${String(m+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-      const dow = new Date(y, m, day).getDay();
+    for (let i = 0; i < totalDaysInPeriod; i++) {
+      const cur = new Date(periodStart);
+      cur.setDate(periodStart.getDate() + i);
+      const dStr = dateToStr(cur);
+      const day = cur.getDate();
+      const dow = cur.getDay();
       const isOff = dow === settings.offDay;
       const isToday = (dStr === todayStr);
+      const isOtherMonth = cutoff > 1 && cur.getMonth() !== m;
 
       const cell = document.createElement('div');
-      cell.className = `cal-cell ${isOff ? 'is-offday' : ''} ${isToday ? 'is-today' : ''}`;
+      cell.className = `cal-cell ${isOff ? 'is-offday' : ''} ${isToday ? 'is-today' : ''} ${isOtherMonth ? 'other-month' : ''}`;
       cell.onclick = () => openModal(dStr);
 
-      let cellInner = `<div class="day-num">${day}</div><div class="cell-content">`;
+      const dayNumHtml = isOtherMonth
+        ? `<div class="day-num">${day}<span class="day-num-month">${thMonthsAbbr[cur.getMonth()]}</span></div>`
+        : `<div class="day-num">${day}</div>`;
+
+      let cellInner = `${dayNumHtml}<div class="cell-content">`;
       if (entryMap[dStr]) {
         const en = entryMap[dStr];
         cellInner += `<span class="badge ${statusBadgeClass[en.status] || 'badge-work'}">${statusLabel[en.status]}</span>`;
@@ -1798,20 +2974,25 @@
     const workedDays = monthEntries.filter(en => en.status === 'work').length;
     const offDayWorkedDays = monthEntries.filter(en => en.status === 'offday_work').length;
     const actualWorkedDays = workedDays + offDayWorkedDays;
-    const paidLeaveDays = monthEntries.filter(en => ['leave_sick','leave_business','leave_annual'].includes(en.status)).length;
+
+    const sickLeaveDays = monthEntries.filter(en => en.status === 'leave_sick').length;
+    const businessLeaveDays = monthEntries.filter(en => en.status === 'leave_business').length;
+    const annualLeaveDays = monthEntries.filter(en => en.status === 'leave_annual').length;
+    const otherPaidLeaveDays = businessLeaveDays + annualLeaveDays;
     const unpaidLeaveDays = monthEntries.filter(en => en.status === 'leave_unpaid').length;
     const absentDays = monthEntries.filter(en => en.status === 'absent').length;
 
     const totalOtHours = monthEntries.reduce((sum, en) => sum + (en.ot || 0), 0);
-    const otMealDays = monthEntries.filter(en => (en.ot || 0) > 0).length;
+    const otMealDays = monthEntries.filter(en => (en.ot || 0) >= 2).length;
     const lateOccurrences = monthEntries.filter(en => (en.late || 0) > 1).length;
     const lateDeductedHours = lateOccurrences * 1;
 
     const dailyRate = settings.salary > 0 ? (settings.salary / 30) : 0;
     const hourlyRate = settings.hours > 0 ? (dailyRate / settings.hours) : 0;
 
-    const payableDays = actualWorkedDays + paidLeaveDays;
-    const basePay = dailyRate * payableDays;
+    const payableDays = actualWorkedDays + otherPaidLeaveDays;
+    
+    const basePay = settings.salary;
     const offDayBonus = dailyRate * offDayWorkedDays;
     const allowancePay = (settings.travel + settings.housing) * actualWorkedDays;
 
@@ -1822,28 +3003,60 @@
     }, 0);
 
     const otMealPay = settings.otMeal * otMealDays;
-    const hasDisqualification = absentDays > 0 || unpaidLeaveDays > 0 || (settings.leaveCounts === 'yes' && paidLeaveDays > 0);
+    const hasDisqualification = absentDays > 0 || unpaidLeaveDays > 0 || sickLeaveDays > 0 || businessLeaveDays > 0;
     const bonusPay = (!hasDisqualification && monthEntries.length > 0) ? settings.bonus : 0;
 
+    const sickDeduction = sickLeaveDays * dailyRate;
+    const unpaidDeduction = (unpaidLeaveDays + absentDays) * dailyRate;
     const lateDeduction = lateDeductedHours * hourlyRate;
     const ssoDeduction = settings.sso !== undefined ? settings.sso : 750;
 
     const grossPay = basePay + offDayBonus + allowancePay + otPay + otMealPay + bonusPay;
-    const totalDeductions = lateDeduction + ssoDeduction;
+    const totalDeductions = sickDeduction + unpaidDeduction + lateDeduction + ssoDeduction;
     const netTotal = Math.max(0, grossPay - totalDeductions);
 
-    currentPayrollData = { payableDays, basePay, offDayWorkedDays, offDayBonus, allowancePay, otPay, totalOtHours, otMealPay, bonusPay, lateDeduction, ssoDeduction, grossPay, totalDeductions, netTotal };
+    currentPayrollData = { 
+      payableDays, 
+      sickLeaveDays,
+      sickDeduction,
+      unpaidDeduction,
+      dailyRate,
+      hourlyRate,
+      basePay, 
+      offDayWorkedDays, 
+      offDayBonus, 
+      allowancePay, 
+      otPay, 
+      totalOtHours, 
+      otMealPay, 
+      bonusPay, 
+      hasDisqualification,
+      lateDeduction, 
+      ssoDeduction, 
+      grossPay, 
+      totalDeductions, 
+      netTotal 
+    };
 
     document.getElementById('sum_worked').textContent = actualWorkedDays + ' วัน';
-    document.getElementById('sum_paidLeave').textContent = paidLeaveDays + ' วัน';
+    document.getElementById('sum_sickLeave').textContent = sickLeaveDays + ' วัน';
+    document.getElementById('sum_paidLeave').textContent = otherPaidLeaveDays + ' วัน';
     document.getElementById('sum_unpaidLeave').textContent = unpaidLeaveDays + ' / ' + absentDays + ' วัน';
     document.getElementById('sum_dailyHourly').textContent = `${fmtBaht(dailyRate)} / ฿${Math.round(hourlyRate)}`;
     document.getElementById('sum_base').textContent = fmtBaht(basePay);
     document.getElementById('sum_offDayBonus').textContent = fmtBaht(offDayBonus);
+    document.getElementById('sum_offDayCount').textContent = offDayWorkedDays;
     document.getElementById('sum_allowance').textContent = fmtBaht(allowancePay);
     document.getElementById('sum_ot').textContent = fmtBaht(otPay);
+    document.getElementById('sum_otHours').textContent = totalOtHours;
     document.getElementById('sum_otMeal').textContent = fmtBaht(otMealPay);
+    document.getElementById('sum_otMealDays').textContent = otMealDays;
     document.getElementById('sum_bonus').textContent = fmtBaht(bonusPay);
+
+    document.getElementById('sum_sickCount').textContent = sickLeaveDays;
+    document.getElementById('sum_sickDeduct').textContent = '-' + fmtBaht(sickDeduction);
+    document.getElementById('sum_lateCount').textContent = lateOccurrences;
+    document.getElementById('sum_lateHours').textContent = lateDeductedHours;
     document.getElementById('sum_lateDeduct').textContent = '-' + fmtBaht(lateDeduction);
     document.getElementById('sum_ssoDeduct').textContent = '-' + fmtBaht(ssoDeduction);
     document.getElementById('sum_total').textContent = fmtBaht(netTotal);
@@ -1852,10 +3065,343 @@
     if (monthEntries.length === 0) stampWrap.innerHTML = '';
     else if (bonusPay > 0) stampWrap.innerHTML = '<div class="stamp">ไม่ขาดงาน<br>รับโบนัส</div>';
     else stampWrap.innerHTML = '<div class="stamp broken">พลาดโบนัส<br>เดือนนี้</div>';
+
+    renderSalaryGoal();
+    applyMoneyMask();
   }
 
-  // GLOBAL EXPORTS
+  // ===================== EXPENSE TRACKER =====================
+
+  function makeExpenseId() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function makeGroupCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return code;
+  }
+
+  async function persistExpenses() {
+    if (!currentUserUID) return;
+    try {
+      if (expenseGroupId) {
+        const groupRef = doc(db, "expenseGroups", expenseGroupId);
+        await setDoc(groupRef, { expensesMonthly, expensesDaily, updatedAt: new Date().toISOString() }, { merge: true });
+      } else {
+        const userRef = doc(db, "users", currentUserUID);
+        await setDoc(userRef, { expensesMonthly, expensesDaily, updatedAt: new Date().toISOString() }, { merge: true });
+      }
+    } catch (e) {
+      console.error("Save expenses error:", e);
+      alert('บันทึกข้อมูลไม่สำเร็จ กรุณาลองใหม่');
+    }
+  }
+
+  function attachExpenseGroupListener(code) {
+    if (expenseGroupUnsub) { expenseGroupUnsub(); expenseGroupUnsub = null; }
+    const groupRef = doc(db, "expenseGroups", code);
+    expenseGroupUnsub = onSnapshot(groupRef, (snap) => {
+      if (!snap.exists()) {
+        alert('กลุ่มนี้ถูกลบไปแล้ว หรือไม่พบข้อมูล กลับเป็นบัญชีเดี่ยว');
+        expenseGroupId = null;
+        if (expenseGroupUnsub) { expenseGroupUnsub(); expenseGroupUnsub = null; }
+        setDoc(doc(db, "users", currentUserUID), { expenseGroupId: deleteField() }, { merge: true }).catch(() => {});
+        reloadPersonalExpenses();
+        return;
+      }
+      const d = snap.data();
+      expensesMonthly = Array.isArray(d.expensesMonthly) ? d.expensesMonthly : [];
+      expensesDaily = Array.isArray(d.expensesDaily) ? d.expensesDaily : [];
+      expenseGroupMembers = d.memberEmails || {};
+      renderExpenses();
+    }, (err) => {
+      console.error("Group listener error:", err);
+    });
+  }
+
+  async function reloadPersonalExpenses() {
+    try {
+      const userRef = doc(db, "users", currentUserUID);
+      const snap = await getDoc(userRef);
+      const d = snap.exists() ? snap.data() : {};
+      expensesMonthly = Array.isArray(d.expensesMonthly) ? d.expensesMonthly : [];
+      expensesDaily = Array.isArray(d.expensesDaily) ? d.expensesDaily : [];
+    } catch (e) {
+      console.error("Reload personal expenses error:", e);
+      expensesMonthly = [];
+      expensesDaily = [];
+    }
+    renderExpenses();
+  }
+
+  async function createExpenseGroup() {
+    if (!currentUserUID) return;
+    if (!confirm('สร้างกลุ่มรายจ่ายร่วมใหม่?')) return;
+    try {
+      let code = makeGroupCode();
+      for (let i = 0; i < 5; i++) {
+        const existing = await getDoc(doc(db, "expenseGroups", code));
+        if (!existing.exists()) break;
+        code = makeGroupCode();
+      }
+      const groupRef = doc(db, "expenseGroups", code);
+      await setDoc(groupRef, {
+        members: [currentUserUID],
+        memberEmails: { [currentUserUID]: currentUserEmail },
+        expensesMonthly,
+        expensesDaily,
+        createdBy: currentUserUID,
+        createdAt: new Date().toISOString()
+      });
+      await setDoc(doc(db, "users", currentUserUID), { expenseGroupId: code }, { merge: true });
+      expenseGroupId = code;
+      attachExpenseGroupListener(code);
+      renderExpenseGroupPanel();
+      alert(`สร้างกลุ่มสำเร็จ! รหัสกลุ่มคือ ${code}`);
+    } catch (e) {
+      console.error("Create group error:", e);
+      alert('สร้างกลุ่มไม่สำเร็จ กรุณาลองใหม่');
+    }
+  }
+
+  async function joinExpenseGroup() {
+    if (!currentUserUID) return;
+    const input = document.getElementById('e_group_code_input');
+    const code = (input.value || '').trim().toUpperCase();
+    if (!code) { alert('กรุณากรอกรหัสกลุ่ม'); return; }
+    try {
+      const groupRef = doc(db, "expenseGroups", code);
+      const snap = await getDoc(groupRef);
+      if (!snap.exists()) { alert('ไม่พบกลุ่มรหัสนี้'); return; }
+      if (!confirm('เข้าร่วมกลุ่มนี้?')) return;
+      await updateDoc(groupRef, {
+        members: arrayUnion(currentUserUID),
+        [`memberEmails.${currentUserUID}`]: currentUserEmail
+      });
+      await setDoc(doc(db, "users", currentUserUID), { expenseGroupId: code }, { merge: true });
+      expenseGroupId = code;
+      attachExpenseGroupListener(code);
+      renderExpenseGroupPanel();
+      input.value = '';
+    } catch (e) {
+      console.error("Join group error:", e);
+      alert('เข้าร่วมกลุ่มไม่สำเร็จ');
+    }
+  }
+
+  async function leaveExpenseGroup() {
+    if (!currentUserUID || !expenseGroupId) return;
+    if (!confirm('ออกจากกลุ่มรายจ่ายร่วม?')) return;
+    const code = expenseGroupId;
+    try {
+      const groupRef = doc(db, "expenseGroups", code);
+      await updateDoc(groupRef, {
+        members: arrayRemove(currentUserUID),
+        [`memberEmails.${currentUserUID}`]: deleteField()
+      });
+    } catch (e) {
+      console.error("Leave group (group doc) error:", e);
+    }
+    try {
+      await setDoc(doc(db, "users", currentUserUID), { expenseGroupId: deleteField() }, { merge: true });
+    } catch (e) {
+      console.error("Leave group (user doc) error:", e);
+    }
+    if (expenseGroupUnsub) { expenseGroupUnsub(); expenseGroupUnsub = null; }
+    expenseGroupId = null;
+    expenseGroupMembers = {};
+    await reloadPersonalExpenses();
+    renderExpenseGroupPanel();
+  }
+
+  function copyGroupCode() {
+    if (!expenseGroupId) return;
+    navigator.clipboard.writeText(expenseGroupId).then(() => {
+      alert(`คัดลอกรหัสกลุ่ม "${expenseGroupId}" แล้ว`);
+    }).catch(() => {
+      alert(`รหัสกลุ่มของคุณคือ: ${expenseGroupId}`);
+    });
+  }
+
+  function renderExpenseGroupPanel() {
+    const panel = document.getElementById('expenseGroupPanel');
+    if (!panel) return;
+    if (expenseGroupId) {
+      const members = Object.values(expenseGroupMembers || {});
+      const membersHtml = members.length
+        ? members.map(email => `<span class="exp-cat-tag">${email}</span>`).join('')
+        : `<span class="exp-cat-tag">${currentUserEmail}</span>`;
+      panel.innerHTML = `
+        <div class="expense-group-active">
+          <div>
+            <div class="exp-sub" style="margin-bottom:4px;">รหัสกลุ่มรายจ่ายร่วม</div>
+            <div class="group-code mono" onclick="copyGroupCode()" title="แตะเพื่อคัดลอก">${expenseGroupId}</div>
+          </div>
+          <div style="flex:1;min-width:180px;">
+            <div class="exp-sub" style="margin-bottom:4px;">สมาชิกในกลุ่ม</div>
+            <div>${membersHtml}</div>
+          </div>
+          <button class="btn-ghost" onclick="leaveExpenseGroup()">ออกจากกลุ่ม</button>
+        </div>`;
+    } else {
+      panel.innerHTML = `
+        <div class="expense-group-setup">
+          <div class="expense-group-setup-col">
+            <p class="hint" style="margin:0 0 8px;">ยังไม่ได้เชื่อมกับบัญชีอื่น — รายจ่ายเห็นเฉพาะบัญชีนี้</p>
+            <button class="btn-primary" onclick="createExpenseGroup()">+ สร้างกลุ่มรายจ่ายร่วม</button>
+          </div>
+          <div class="expense-group-setup-col">
+            <label>มีรหัสกลุ่มอยู่แล้ว?</label>
+            <div style="display:flex;gap:8px;">
+              <input id="e_group_code_input" type="text" placeholder="กรอกรหัสกลุ่ม เช่น AB12CD" style="text-transform:uppercase;">
+              <button class="btn-dark" onclick="joinExpenseGroup()">เข้าร่วม</button>
+            </div>
+          </div>
+        </div>`;
+    }
+  }
+
+  function shiftExpenseMonth(delta) {
+    expenseViewDate.setMonth(expenseViewDate.getMonth() + delta);
+    renderExpenses();
+  }
+
+  async function addMonthlyExpense() {
+    const name = document.getElementById('e_m_name').value.trim();
+    const amount = getNumInput('e_m_amount', 0);
+    if (!name || amount <= 0) {
+      alert('กรุณากรอกชื่อรายการและจำนวนเงินให้ถูกต้อง');
+      return;
+    }
+    expensesMonthly.push({ id: makeExpenseId(), name, amount, addedBy: currentUserEmail || '' });
+    document.getElementById('e_m_name').value = '';
+    document.getElementById('e_m_amount').value = '';
+    await persistExpenses();
+    renderExpenses();
+
+    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE
+    const empName = settings.name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'ผู้ใช้');
+    const monthlyMsg = `🔁 เพิ่มรายจ่ายประจำ (${empName})\nรายการ: ${name}\nยอดเงิน: ${fmtBaht(amount)}/เดือน`;
+    sendLineNotification(monthlyMsg);
+  }
+
+  async function deleteMonthlyExpense(id) {
+    expensesMonthly = expensesMonthly.filter(x => x.id !== id);
+    await persistExpenses();
+    renderExpenses();
+  }
+
+  async function addDailyExpense() {
+    const dateEl = document.getElementById('e_d_date');
+    const date = dateEl.value || new Date().toISOString().slice(0, 10);
+    const category = document.getElementById('e_d_category').value;
+    const note = document.getElementById('e_d_note').value.trim();
+    const amount = getNumInput('e_d_amount', 0);
+    if (amount <= 0) {
+      alert('กรุณากรอกจำนวนเงินให้ถูกต้อง');
+      return;
+    }
+    expensesDaily.push({ id: makeExpenseId(), date, category, note, amount, addedBy: currentUserEmail || '' });
+    expensesDaily.sort((a, b) => a.date.localeCompare(b.date));
+    document.getElementById('e_d_note').value = '';
+    document.getElementById('e_d_amount').value = '';
+    await persistExpenses();
+    renderExpenses();
+
+    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE
+    const catText = expenseCategoryLabel[category] || category;
+    const empName = settings.name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'ผู้ใช้');
+    const expenseMsg = `💸 บันทึกรายจ่าย (${empName})\n📅 วันที่: ${date}\nหมวดหมู่: ${catText}\nรายการ: ${note || '-'}\nยอดเงิน: ${fmtBaht(amount)}`;
+    sendLineNotification(expenseMsg);
+  }
+
+  async function deleteDailyExpense(id) {
+    expensesDaily = expensesDaily.filter(x => x.id !== id);
+    await persistExpenses();
+    renderExpenses();
+  }
+
+  function renderExpenses() {
+    renderExpenseGroupPanel();
+
+    const dateEl = document.getElementById('e_d_date');
+    if (dateEl && !dateEl.value) dateEl.value = new Date().toISOString().slice(0, 10);
+
+    const isGroup = !!expenseGroupId;
+    const showOwner = isGroup && Object.keys(expenseGroupMembers || {}).length > 1;
+
+    const monthlyListEl = document.getElementById('monthlyExpenseList');
+    if (expensesMonthly.length === 0) {
+      monthlyListEl.innerHTML = '<div class="expense-empty">ยังไม่มีรายการรายจ่ายประจำ — เพิ่มรายการด้านบน เช่น ค่าเช่าบ้าน ค่าอินเทอร์เน็ต</div>';
+    } else {
+      monthlyListEl.innerHTML = expensesMonthly.map(x => `
+        <div class="expense-row">
+          <div class="exp-main">
+            <div class="exp-title">${x.name}</div>
+            <div class="exp-sub">ทุกเดือน${showOwner && x.addedBy ? ' · เพิ่มโดย ' + x.addedBy : ''}</div>
+          </div>
+          <div class="exp-amount money-mask">-${fmtBaht(x.amount)}</div>
+          <button class="exp-del" onclick="deleteMonthlyExpense('${x.id}')" title="ลบรายการ">✕</button>
+        </div>
+      `).join('');
+    }
+    const monthlyTotal = expensesMonthly.reduce((sum, x) => sum + (x.amount || 0), 0);
+    document.getElementById('e_monthly_total').textContent = fmtBaht(monthlyTotal);
+
+    const ey = expenseViewDate.getFullYear();
+    const em = expenseViewDate.getMonth();
+    document.getElementById('expenseMonthLabel').textContent = thMonths[em] + ' ' + (ey + 543);
+
+    const dailyForMonth = expensesDaily.filter(x => {
+      if (!x.date) return false;
+      const p = x.date.split('-');
+      return parseInt(p[0], 10) === ey && (parseInt(p[1], 10) - 1) === em;
+    }).sort((a, b) => b.date.localeCompare(a.date));
+
+    const dailyListEl = document.getElementById('dailyExpenseList');
+    if (dailyForMonth.length === 0) {
+      dailyListEl.innerHTML = '<div class="expense-empty">ยังไม่มีรายจ่ายในเดือนนี้ — เพิ่มรายการด้านบน</div>';
+    } else {
+      dailyListEl.innerHTML = dailyForMonth.map(x => {
+        const d = new Date(x.date + 'T00:00:00');
+        const dLabel = `${d.getDate()} ${thMonthsAbbr[d.getMonth()]}`;
+        const catLabel = expenseCategoryLabel[x.category] || '📦 อื่นๆ';
+        return `
+        <div class="expense-row">
+          <div class="exp-main">
+            <div class="exp-title">${x.note ? x.note : catLabel.replace(/^\S+\s/, '')}</div>
+            <div class="exp-sub"><span class="exp-cat-tag">${catLabel}</span>${dLabel}${showOwner && x.addedBy ? ' · ' + x.addedBy : ''}</div>
+          </div>
+          <div class="exp-amount money-mask">-${fmtBaht(x.amount)}</div>
+          <button class="exp-del" onclick="deleteDailyExpense('${x.id}')" title="ลบรายการ">✕</button>
+        </div>`;
+      }).join('');
+    }
+
+    const dailyTotal = dailyForMonth.reduce((sum, x) => sum + (x.amount || 0), 0);
+    document.getElementById('e_daily_count').textContent = dailyForMonth.length;
+    document.getElementById('e_daily_total').textContent = fmtBaht(dailyTotal);
+
+    document.getElementById('e_sum_monthly').textContent = fmtBaht(monthlyTotal);
+    document.getElementById('e_sum_daily').textContent = fmtBaht(dailyTotal);
+    document.getElementById('e_sum_grand').textContent = fmtBaht(monthlyTotal + dailyTotal);
+    applyMoneyMask();
+  }
+
+  // GLOBAL EXPORTS FOR INLINE HTML HANDLERS
   window.switchMainTab = switchMainTab;
+  window.shiftExpenseMonth = shiftExpenseMonth;
+  window.addMonthlyExpense = addMonthlyExpense;
+  window.deleteMonthlyExpense = deleteMonthlyExpense;
+  window.addDailyExpense = addDailyExpense;
+  window.deleteDailyExpense = deleteDailyExpense;
+  window.createExpenseGroup = createExpenseGroup;
+  window.joinExpenseGroup = joinExpenseGroup;
+  window.leaveExpenseGroup = leaveExpenseGroup;
+  window.copyGroupCode = copyGroupCode;
+  window.onSalaryGoalChange = onSalaryGoalChange;
   window.calculateFullTax = calculateFullTax;
   window.saveTaxInputs = saveTaxInputs;
   window.toggleSettings = toggleSettings;
@@ -1878,6 +3424,18 @@
   window.handleLoginSubmit = handleLoginSubmit;
   window.handleRegisterSubmit = handleRegisterSubmit;
   window.handleLogout = handleLogout;
+  window.lockMoneyView = lockMoneyView;
+  window.handleLockButtonClick = handleLockButtonClick;
+  window.startSetupPinFlow = startSetupPinFlow;
+  window.startChangePinFlow = startChangePinFlow;
+  window.startDisablePinFlow = startDisablePinFlow;
+  window.startForgotPinFlow = startForgotPinFlow;
+  window.cancelForgotPinFlow = cancelForgotPinFlow;
+  window.handlePinReauthSubmit = handlePinReauthSubmit;
+  window.pinKeyPress = pinKeyPress;
+  window.pinKeyBackspace = pinKeyBackspace;
+  window.closePinOverlay = closePinOverlay;
+  window.handlePinOverlayClick = handlePinOverlayClick;
 </script>
 
 </body>
