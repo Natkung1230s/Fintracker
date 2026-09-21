@@ -1588,13 +1588,15 @@
     deleteField
   } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+  // Firebase Config สำหรับโปรเจกต์ moneybook-d3b31
   const firebaseConfig = {
-    apiKey: "AIzaSyBDIqntSdjumeFL3iOgB_Om8StrQfSCSzg",
-    authDomain: "market-7facf.firebaseapp.com",
-    projectId: "market-7facf",
-    storageBucket: "market-7facf.firebasestorage.app",
-    messagingSenderId: "745468103573",
-    appId: "1:745468103573:web:55ed26cb533e168000449c"
+    apiKey: "AIzaSyCZMKxxpcrDS33ViMGMjqIO0nDDupDaKhs",
+    authDomain: "moneybook-d3b31.firebaseapp.com",
+    databaseURL: "https://moneybook-d3b31-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "moneybook-d3b31",
+    storageBucket: "moneybook-d3b31.firebasestorage.app",
+    messagingSenderId: "82032321986",
+    appId: "1:82032321986:web:3473aa5a0d4b8d9170225b"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -2490,7 +2492,7 @@
   function onSalaryGoalChange() {
     salaryGoal = getNumInput('goal_amount', 0);
     const typeEl = document.getElementById('goal_ot_type');
-    salaryGoalOtType = typeEl ? typeEl.value : 'normal';
+    salaryGoalOtType = typeEl ? typeEl.value : salaryGoalOtType;
     renderSalaryGoal();
 
     if (!currentUserUID) return;
