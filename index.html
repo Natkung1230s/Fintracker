@@ -1087,8 +1087,6 @@
 
     <!-- TAX INPUT FORM -->
     <section class="card">
-      
-      <!-- หมวดที่ 1: รายได้พึงประเมิน & ลดหย่อนส่วนตัวและครอบครัว -->
       <div class="section-divider" style="margin-top:0;">📌 หมวดที่ 1: รายได้พึงประเมิน & สิทธิ์ลดหย่อนส่วนตัวและครอบครัว</div>
       <p class="hint">ข้อมูลเงินได้และสิทธิ์พื้นฐานทางครอบครัวตามกฎหมายสรรพากร</p>
 
@@ -1097,7 +1095,7 @@
           <label>1.1 รายได้รวมทั้งปี (เงินเดือน + โบนัส + OT) (บาท)</label>
           <input type="number" id="t_income" placeholder="เช่น 360000" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูได้จาก <strong>หนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ)</strong> ช่อง "รวมเงินที่จ่าย" ที่ HR ออกให้ตอนสิ้นปี หรือดูจากรวมยอด Gross Pay ในสลิปเงินเดือนเดือนธันวาคม
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูได้จาก <strong>หนังสือรับรองการหักภาษี ณ ที่จ่าย (50 ทวิ)</strong> ช่อง "รวมเงินที่จ่าย" หรือยอดรวม Gross Pay ในสลิปเงินเดือนเดือนธันวาคม
           </div>
         </div>
 
@@ -1105,7 +1103,7 @@
           <label>1.2 ภาษีหัก ณ ที่จ่าย ที่ถูกหักสะสมทั้งปี (บาท)</label>
           <input type="number" id="t_withheld" placeholder="เช่น 2500" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรอง 50 ทวิ</strong> ช่อง "ภาษีที่หักและนำส่งไว้" หรือยอดรวมภาษีหักสะสมในสลิปเงินเดือนเดือนสุดท้ายของปี
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรอง 50 ทวิ</strong> ช่อง "ภาษีที่หักและนำส่งไว้"
           </div>
         </div>
 
@@ -1113,7 +1111,7 @@
           <label>1.3 ลดหย่อนส่วนตัว (อัตโนมัติ 60,000 บาท)</label>
           <input type="number" id="t_personal" value="60000" readonly style="background:#EFE8D3;">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> สิทธิ์พื้นฐานตามกฎหมาย สรรพากรให้ทุกคนอัตโนมัติ 60,000 บาท ไม่ต้องเตรียมเอกสารเพิ่มเติม
+            <strong>💡 วิธีหาข้อมูล:</strong> สิทธิ์พื้นฐานตามกฎหมาย สรรพากรให้ทุกคนอัตโนมัติ 60,000 บาท
           </div>
         </div>
 
@@ -1124,7 +1122,7 @@
             <option value="60000">คู่สมรสจดทะเบียน และไม่มีรายได้ในปีภาษีนี้ (60,000 บาท)</option>
           </select>
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ต้องจดทะเบียนสมรสตามกฎหมายถูกต้อง และคู่สมรสต้องไม่มีรายได้ตลอดปี เอกสารอ้างอิง: <strong>ใบทะเบียนสมรส (คร.2/คร.3)</strong>
+            <strong>💡 วิธีหาข้อมูล:</strong> ต้องจดทะเบียนสมรสตามกฎหมายถูกต้อง และคู่สมรสต้องไม่มีรายได้ตลอดปี
           </div>
         </div>
 
@@ -1132,7 +1130,7 @@
           <label>1.5 จำนวนบุตร (คนละ 30,000 บ. / คนที่ 2 ขึ้นไปเกิดปี 61+ ได้ 60,000 บ.)</label>
           <input type="number" id="t_children" min="0" value="0" placeholder="ระบุจำนวนบุตร" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> บุตรต้องชอบด้วยกฎหมาย อายุไม่เกิน 20 ปี (หรือ 20-25 ปีหากกำลังศึกษา) เอกสารอ้างอิง: <strong>สูติบัตรบุตร</strong> หรือ <strong>ทะเบียนบ้าน</strong>
+            <strong>💡 วิธีหาข้อมูล:</strong> บุตรต้องชอบด้วยกฎหมาย อายุไม่เกิน 20 ปี (หรือ 20-25 ปีหากกำลังศึกษา)
           </div>
         </div>
 
@@ -1140,7 +1138,7 @@
           <label>1.6 ค่าเลี้ยงดูบิดามารดา (คนละ 30,000 บาท สูงสุด 4 คน)</label>
           <input type="number" id="t_parents" min="0" max="4" value="0" placeholder="จำนวนพ่อแม่ (0-4)" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> บิดามารดาต้องมีอายุ 60 ปีขึ้นไป และมีรายได้ทั้งปีไม่เกิน 30,000 บาท เอกสารอ้างอิง: <strong>ฟอร์ม ล.ย.01</strong> และเลขบัตรประชาชนพ่อแม่ (พี่น้องห้ามใช้สิทธิ์ซ้ำกัน)
+            <strong>💡 วิธีหาข้อมูล:</strong> บิดามารดาต้องมีอายุ 60 ปีขึ้นไป และมีรายได้ทั้งปีไม่เกิน 30,000 บาท
           </div>
         </div>
 
@@ -1148,12 +1146,11 @@
           <label>1.7 อุปการะผู้พิการ / ทุพพลภาพ (คนละ 60,000 บาท)</label>
           <input type="number" id="t_disabled" min="0" value="0" placeholder="จำนวนผู้พิการที่ดูแล" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>บัตรประจำตัวผู้พิการ</strong> ที่ระบุชื่อเราเป็นผู้ดูแล หรือ <strong>หนังสือรับรองการเป็นผู้ดูแลผู้พิการ</strong> จากกรมส่งเสริมและพัฒนาคุณภาพชีวิตคนพิการ
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>บัตรประจำตัวผู้พิการ</strong> ที่ระบุชื่อเราเป็นผู้ดูแล
           </div>
         </div>
       </div>
 
-      <!-- หมวดที่ 2: ประกัน การออม & การลงทุน -->
       <div class="section-divider">📌 หมวดที่ 2: ประกัน การออม & การลงทุน</div>
       <p class="hint">กลุ่มหลักทรัพย์ ประกันภัย และกองทุนเกษียณอายุเพื่ออนาคต</p>
 
@@ -1162,7 +1159,7 @@
           <label>2.1 ประกันสังคม (จ่ายตามจริง สูงสุด 9,000 บาท)</label>
           <input type="number" id="t_sso" placeholder="เช่น 9000" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>แอปพลิเคชัน SSO Connect</strong> หรือยอดรวมหักประกันสังคมในหนังสือรับรอง 50 ทวิ / สลิปเงินเดือนรวม 12 เดือน
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>แอป SSO Connect</strong> หรือยอดหักประกันสังคมสะสม 50 ทวิ
           </div>
         </div>
 
@@ -1170,7 +1167,7 @@
           <label>2.2 เบี้ยประกันชีวิตทั่วไป / ประกันออมทรัพย์ (สูงสุด 100,000 บาท)</label>
           <input type="number" id="t_lifeIns" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรองการชำระเบี้ยประกันภัย</strong> ที่ขอจากแอปพลิเคชันบริษัทประกัน (เช่น AIA, TLFA, FWD, เมืองไทยประกันชีวิต)
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรองการชำระเบี้ยประกันภัย</strong> จากบริษัทประกัน
           </div>
         </div>
 
@@ -1178,7 +1175,7 @@
           <label>2.3 เบี้ยประกันสุขภาพตนเอง (สูงสุด 25,000 บาท)</label>
           <input type="number" id="t_healthIns" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรองเบี้ยประกันสุขภาพ</strong> จากแอป/เว็บประกันภัย (หมายเหตุ: รวมกับข้อ 2.2 แล้วต้องไม่เกิน 100,000 บาท)
+            <strong>💡 วิธีหาข้อมูล:</strong> รวมกับข้อ 2.2 แล้วต้องไม่เกิน 100,000 บาท
           </div>
         </div>
 
@@ -1186,7 +1183,7 @@
           <label>2.4 เบี้ยประกันสุขภาพบิดามารดา (สูงสุด 15,000 บาท)</label>
           <input type="number" id="t_parentsHealth" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรองการชำระเบี้ยประกันภัย</strong> ที่ระบุบิดา/มารดาเป็นผู้เอาประกันภัย และมีชื่อเราเป็นผู้ชำระเบี้ย
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากหนังสือรับรองเบี้ยประกันสุขภาพบิดามารดา
           </div>
         </div>
 
@@ -1194,7 +1191,7 @@
           <label>2.5 กองทุนสำรองเลี้ยงชีพ (PVD) / กบข. (ตามจ่ายจริง)</label>
           <input type="number" id="t_pvd" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูได้จาก <strong>สลิปเงินเดือน</strong> (ช่องสะสม PVD) หรือขอ <strong>หนังสือรับรองการจ่ายเงินสะสม PVD</strong> จาก HR หรือแอป บลจ. จัดการกองทุน
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากช่องสะสม PVD ในสลิปเงินเดือน หรือขอหนังสือรับรองสะสม PVD
           </div>
         </div>
 
@@ -1202,7 +1199,7 @@
           <label>2.6 กองทุนรวมเพื่อการเลี้ยงชีพ (RMF) (สูงสุด 30% ไม่เกิน 500k)</label>
           <input type="number" id="t_rmf" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูได้จาก <strong>หนังสือรับรองการซื้อหน่วยลงทุน RMF</strong> หรือกดดาวน์โหลดเอกสารภาษีในแอปธนาคาร/บลจ. ที่คุณซื้อ (เช่น Streaming, InnovestX, K-MyFunds)
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากหนังสือรับรองการซื้อหน่วยลงทุน RMF ประจำปี
           </div>
         </div>
 
@@ -1210,7 +1207,7 @@
           <label>2.7 กองทุนรวมเพื่อการออม (SSF) / Thai ESG (ตามจ่ายจริง)</label>
           <input type="number" id="t_ssf" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูหนังสือรับรองซื้อหน่วยลงทุนจากแอป บลจ. หรือล็อกอินเว็บบอร์ด <strong>TSD EveryNet</strong> ของศูนย์รับฝากหลักทรัพย์
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูหนังสือรับรองซื้อหน่วยลงทุนจากแอป บลจ.
           </div>
         </div>
 
@@ -1218,12 +1215,11 @@
           <label>2.8 ประกันชีวิตแบบบำนาญ (สูงสุด 15% ไม่เกิน 200,000 บาท)</label>
           <input type="number" id="t_pensionIns" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรองการชำระเบี้ยประกันภัยแบบบำนาญ</strong> ที่บริษัทประกันออกให้ทางอีเมลหรือแอปพลิเคชัน
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากหนังสือรับรองเบี้ยประกันภัยบำนาญ
           </div>
         </div>
       </div>
 
-      <!-- หมวดที่ 3: อสังหาริมทรัพย์ & เงินบริจาค -->
       <div class="section-divider">📌 หมวดที่ 3: อสังหาริมทรัพย์ & เงินบริจาค</div>
       <p class="hint">ดอกเบี้ยกู้บ้าน และเงินบริจาคสนับสนุนสังคม</p>
 
@@ -1232,7 +1228,7 @@
           <label>3.1 ดอกเบี้ยกู้ยืมเพื่อซื้อ/สร้างที่อยู่อาศัย (สูงสุด 100,000 บาท)</label>
           <input type="number" id="t_homeLoan" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>หนังสือรับรองดอกเบี้ยกู้ยืมประจำปี</strong> ที่ธนาคารผู้ให้กู้ส่งให้ทางอีเมล/ไปรษณีย์ หรือกดดาวน์โหลดในแอปธนาคาร (เช่น ธอส., SCB, K-Bank)
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากหนังสือรับรองดอกเบี้ยกู้ยืมเพื่อซื้อบ้านจากธนาคาร
           </div>
         </div>
 
@@ -1240,7 +1236,7 @@
           <label>3.2 เงินบริจาคทั่วไป (หักตามจริง ไม่เกิน 10% ของเงินได้หลังหักลดหย่อน)</label>
           <input type="number" id="t_donateGeneral" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>ใบเสร็จรับเงินบริจาค</strong> หรือตรวจสอบยอดผ่าน <strong>ระบบ e-Donation ของกรมสรรพากร (rd.go.th)</strong>
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากใบเสร็จ หรือ e-Donation สรรพากร
           </div>
         </div>
 
@@ -1248,7 +1244,7 @@
           <label>3.3 เงินบริจาคเพื่อการศึกษา/กีฬา/โรงพยาบาลรัฐ (ได้สิทธิ์ 2 เท่า)</label>
           <input type="number" id="t_donateEdu" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> สแกนบริจาคผ่าน QR Code e-Donation ข้อมูลจะส่งตรงเข้ากรมสรรพากรและคำนวณหักลดหย่อน 2 เท่าให้อัตโนมัติในระบบ
+            <strong>💡 วิธีหาข้อมูล:</strong> บริจาคผ่านระบบ e-Donation สรรพากรคำนวณหัก 2 เท่าให้อัตโนมัติ
           </div>
         </div>
 
@@ -1256,12 +1252,11 @@
           <label>3.4 เงินบริจาคพรรคการเมือง (ตามจ่ายจริง สูงสุด 10,000 บาท)</label>
           <input type="number" id="t_donatePolitical" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>ใบเสร็จรับเงินบริจาคที่ออกโดยพรรคการเมือง</strong> ที่ได้รับอนุญาตตามกฎหมาย
+            <strong>💡 วิธีหาข้อมูล:</strong> ดูจากใบเสร็จรับเงินบริจาคของพรรคการเมือง
           </div>
         </div>
       </div>
 
-      <!-- หมวดที่ 4: มาตรการกระตุ้นเศรษฐกิจรัฐบาล -->
       <div class="section-divider">📌 หมวดที่ 4: มาตรการกระตุ้นเศรษฐกิจของรัฐบาล</div>
       <p class="hint">โครงการลดหย่อนตามนโยบายภาครัฐในแต่ละปีภาษี</p>
 
@@ -1270,28 +1265,24 @@
           <label>4.1 โครงการ Easy E-Receipt / ช้อปดีมีคืน (สูงสุด 50,000 บาท)</label>
           <input type="number" id="t_easyReceipt" placeholder="ตามจ่ายจริง" oninput="calculateFullTax()">
           <div class="tip-box">
-            <strong>💡 วิธีหาข้อมูล:</strong> ดูจาก <strong>ใบกำกับภาษีเต็มรูปแบบในรูปแบบอิเล็กทรอนิกส์ (e-Tax Invoice & e-Receipt)</strong> ที่ได้รับทางอีเมลจากร้านค้าที่ร่วมโครงการ
+            <strong>💡 วิธีหาข้อมูล:</strong> ใบกำกับภาษีอิเล็กทรอนิกส์ (e-Tax Invoice & e-Receipt)
           </div>
         </div>
       </div>
-
     </section>
   </div>
 
-  <!-- CATEGORY 3: EXPENSE TRACKER (รายจ่ายประจำ & รายจ่ายรายวัน) -->
+  <!-- CATEGORY 3: EXPENSE TRACKER -->
   <div id="expenseView" style="display:none;">
-
-    <!-- SHARED EXPENSE GROUP -->
     <section class="card">
       <h2>🔗 กลุ่มรายจ่ายร่วม</h2>
       <p class="hint">เชื่อมรายจ่ายกับอีกบัญชี (เช่น คู่รัก/ครอบครัว) เพื่อบันทึกและดูรายจ่ายร่วมกันแบบเรียลไทม์</p>
       <div id="expenseGroupPanel"></div>
     </section>
 
-    <!-- MONTHLY RECURRING EXPENSES -->
     <section class="card">
       <h2>🔁 รายจ่ายประจำ (รายเดือน)</h2>
-      <p class="hint">รายการที่จ่ายซ้ำทุกเดือนเป็นจำนวนคงที่ เช่น ค่าเช่าบ้าน ค่าผ่อนรถ ค่าอินเทอร์เน็ต ค่าประกัน — ระบบจะรวมยอดนี้ให้ทุกเดือนโดยอัตโนมัติ ไม่ต้องกรอกซ้ำ</p>
+      <p class="hint">รายการที่จ่ายซ้ำทุกเดือน เช่น ค่าเช่าบ้าน ค่าผ่อนรถ ค่าอินเทอร์เน็ต — รวมให้อัตโนมัติ</p>
 
       <div class="grid" style="margin-bottom:14px;">
         <div><label>ชื่อรายการ</label><input id="e_m_name" type="text" placeholder="เช่น ค่าเช่าบ้าน"></div>
@@ -1308,7 +1299,6 @@
       </div>
     </section>
 
-    <!-- DAILY EXPENSES -->
     <section class="card">
       <div class="monthbar">
         <h2 style="margin:0;">🧾 รายจ่ายรายวัน</h2>
@@ -1318,7 +1308,7 @@
           <button onclick="shiftExpenseMonth(1)">›</button>
         </div>
       </div>
-      <p class="hint" style="margin-bottom:14px;">บันทึกรายจ่ายแต่ละวัน แยกตามหมวดหมู่ เพื่อดูภาพรวมการใช้จ่ายรายเดือน (แยกจากรายจ่ายประจำด้านบน)</p>
+      <p class="hint" style="margin-bottom:14px;">บันทึกรายจ่ายแต่ละวัน แยกตามหมวดหมู่</p>
 
       <div class="grid" style="margin-bottom:14px;">
         <div><label>วันที่</label><input id="e_d_date" type="date"></div>
@@ -1349,7 +1339,6 @@
       </div>
     </section>
 
-    <!-- GRAND TOTAL -->
     <section class="card">
       <h2>📊 สรุปรายจ่ายรวมของเดือนนี้</h2>
       <p class="hint">รายจ่ายประจำ + รายจ่ายรายวัน ของเดือนที่กำลังดูอยู่ในตารางด้านบน</p>
@@ -1359,7 +1348,6 @@
         <div class="stat total"><div class="k">รวมรายจ่ายทั้งหมด</div><div class="v money-mask" id="e_sum_grand">฿0</div></div>
       </div>
     </section>
-
   </div>
 
 </main>
@@ -1419,7 +1407,6 @@
   <div class="pin-box">
     <button type="button" class="pin-close" id="pinCloseBtn" onclick="closePinOverlay()" style="display:none;">✕</button>
 
-    <!-- Numeric keypad panel -->
     <div id="pinPadPanel">
       <div class="pin-icon" id="pinIcon">🔒</div>
       <h2 id="pinTitle">ใส่รหัส PIN</h2>
@@ -1449,11 +1436,10 @@
       </div>
     </div>
 
-    <!-- Identity verification panel (used for the forgot-PIN flow) -->
     <div id="pinAuthPanel" class="pin-auth-panel" style="display:none;">
       <div class="pin-icon">🔑</div>
       <h2>ยืนยันตัวตนของคุณ</h2>
-      <p class="pin-subtitle">กรอกอีเมลและรหัสผ่านที่ใช้เข้าสู่ระบบ (Firebase) เพื่อยืนยันว่าเป็นคุณจริงๆ ก่อนตั้งรหัส PIN ใหม่</p>
+      <p class="pin-subtitle">กรอกอีเมลและรหัสผ่านที่ใช้เข้าสู่ระบบ (Firebase) เพื่อยืนยันตัวตนก่อนตั้งรหัส PIN ใหม่</p>
       <form id="pinAuthForm" onsubmit="handlePinReauthSubmit(event)">
         <div class="form-group">
           <label>อีเมล</label>
@@ -1616,7 +1602,7 @@
   const db = getFirestore(app);
 
   // ==========================================
-  // 🔔 ระบบแจ้งเตือน LINE (ผ่าน Google Apps Script)
+  // 🔔 ระบบแจ้งเตือน LINE (ส่งแยกเฉพาะบุคคลด้วย UID)
   // ==========================================
   const LINE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbw1XuwdJ4NY2VP8bFOTDfI7EAUdt6fGq0xCW7MTmDRxQ7iSdh2CIMuyknUfmSQzJe9s6w/exec";
 
@@ -1627,7 +1613,10 @@
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
-        body: JSON.stringify({ message: msg })
+        body: JSON.stringify({ 
+          message: msg,
+          uid: currentUserUID // ส่ง UID เพื่อให้แจ้งเตือนเข้า LINE บัญชีของผู้ใช้คนนั้นโดยเฉพาะ
+        })
       });
     } catch (err) {
       console.warn("แจ้งเตือน LINE ไม่สำเร็จ:", err);
@@ -1688,7 +1677,6 @@
   const thMonths = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
   const thMonthsAbbr = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 
-  // --- Payroll cutoff period helpers ---
   function pad2(n) { return String(n).padStart(2, '0'); }
   function dateToStr(d) { return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; }
   function getPayCutoffDay() {
@@ -1783,6 +1771,12 @@
   async function loadCloudUserData(uid) {
     try {
       const userRef = doc(db, "users", uid);
+
+      // บันทึกอีเมลลง Firestore เสมอ เพื่อให้ระบบผูกบัญชีใน LINE ค้นหาเจอ
+      if (currentUserEmail) {
+        await setDoc(userRef, { email: currentUserEmail }, { merge: true });
+      }
+
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
@@ -2313,7 +2307,6 @@
   function calculateFullTax() {
     const income = getNumInput('t_income', settings.salary * 12);
     const withheld = getNumInput('t_withheld', 0);
-    
     const expense = Math.min(income * 0.5, 100000);
 
     const personal = 60000;
@@ -2677,6 +2670,7 @@
       const cred = await createUserWithEmailAndPassword(auth, email, p);
       const initialSettings = Object.assign({}, settings, { name, salary });
       await setDoc(doc(db, "users", cred.user.uid), {
+        email, // บันทึกอีเมลตั้งแต่ตอนสมัคร
         settings: initialSettings,
         entries: [],
         createdAt: new Date().toISOString()
@@ -2769,7 +2763,7 @@
     closeModal();
     render();
 
-    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE
+    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE (ส่งเฉพาะเจาะจงถึงผู้ใช้คนนี้)
     const thStatus = statusLabel[status] || status;
     const empName = settings.name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'พนักงาน');
     let lineMsg = `📌 บันทึกเวลาทำงาน (${empName})\n📅 วันที่: ${date}\nสถานะ: ${thStatus}`;
@@ -2992,7 +2986,6 @@
     const hourlyRate = settings.hours > 0 ? (dailyRate / settings.hours) : 0;
 
     const payableDays = actualWorkedDays + otherPaidLeaveDays;
-    
     const basePay = settings.salary;
     const offDayBonus = dailyRate * offDayWorkedDays;
     const allowancePay = (settings.travel + settings.housing) * actualWorkedDays;
@@ -3282,7 +3275,7 @@
     await persistExpenses();
     renderExpenses();
 
-    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE
+    // 🔔 ส่งแจ้งเตือนเข้า LINE เจ้าของบัญชี
     const empName = settings.name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'ผู้ใช้');
     const monthlyMsg = `🔁 เพิ่มรายจ่ายประจำ (${empName})\nรายการ: ${name}\nยอดเงิน: ${fmtBaht(amount)}/เดือน`;
     sendLineNotification(monthlyMsg);
@@ -3311,7 +3304,7 @@
     await persistExpenses();
     renderExpenses();
 
-    // 🔔 ส่งข้อความแจ้งเตือนผ่าน LINE
+    // 🔔 ส่งแจ้งเตือนเข้า LINE เจ้าของบัญชี
     const catText = expenseCategoryLabel[category] || category;
     const empName = settings.name || (currentUserEmail ? currentUserEmail.split('@')[0] : 'ผู้ใช้');
     const expenseMsg = `💸 บันทึกรายจ่าย (${empName})\n📅 วันที่: ${date}\nหมวดหมู่: ${catText}\nรายการ: ${note || '-'}\nยอดเงิน: ${fmtBaht(amount)}`;
