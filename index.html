@@ -21,6 +21,8 @@
     --muted:#7A6F53;
     --text:#241D0E;
     --blue:#2563EB;
+    --line-green:#06C755;
+    --line-green-dark:#05a847;
   }
   *{-webkit-tap-highlight-color:transparent;box-sizing:border-box;}
   body{
@@ -62,6 +64,36 @@
   }
   h1{margin:0 0 4px;font-size:24px;font-weight:700;}
   header p{margin:0;color:#B9AF95;font-size:13px;}
+
+  /* Header Right Section & Line Connect Button */
+  .header-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .btn-line-connect{
+    background:var(--line-green);
+    color:#FFF;
+    font-family:'Sarabun',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    padding:7px 14px;
+    border-radius:30px;
+    border:1px solid rgba(255,255,255,.2);
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    box-shadow:0 3px 10px rgba(6,199,85,.35);
+    transition:transform .08s ease, background-color .15s ease, box-shadow .15s ease;
+  }
+  .btn-line-connect:hover{
+    background:var(--line-green-dark);
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px rgba(6,199,85,.45);
+  }
+  .btn-line-connect:active{transform:translateY(1px);}
 
   .user-badge-wrap{
     display:flex;
@@ -693,7 +725,8 @@
     header{padding:16px 12px 20px;}
     header .wrap{flex-direction:column;align-items:flex-start;gap:10px;}
     h1{font-size:20px;}
-    .user-badge-wrap{width:100%;justify-content:space-between;}
+    .header-actions{width:100%;justify-content:space-between;}
+    .user-badge-wrap{flex:1;justify-content:space-between;}
     main{padding:14px 10px 60px;}
     .main-nav-tabs{gap:4px;}
     .tab-btn{font-size:12.5px;padding:8px 10px;}
@@ -727,13 +760,20 @@
       <p>ระบบบันทึกเวลาทำงาน คำนวณเงินเดือน & วางแผนภาษีบุคคลธรรมดาประจำปี</p>
     </div>
     
-    <div class="user-badge-wrap" id="userBadgeWrap" style="display:none;">
-      <div class="user-info">
-        <div class="user-name" id="hdr_userName">พนักงาน</div>
-        <div class="user-role" id="hdr_userRole">CLOUD ACCOUNT</div>
+    <!-- ปุ่ม CONNECT LINE วางไว้ด้านซ้ายของกล่องชื่อผู้ใช้ ตามตำแหน่งวงสีแดง -->
+    <div class="header-actions">
+      <button class="btn-line-connect" id="hdr_lineConnectBtn" style="display:none;" onclick="openLineConnectModal()">
+        💬 Connect LINE Notify
+      </button>
+
+      <div class="user-badge-wrap" id="userBadgeWrap" style="display:none;">
+        <div class="user-info">
+          <div class="user-name" id="hdr_userName">พนักงาน</div>
+          <div class="user-role" id="hdr_userRole">CLOUD ACCOUNT</div>
+        </div>
+        <button class="btn-ghost" id="hdr_lockBtn" style="display:none;padding:4px 8px;font-size:11.5px;color:#F1E9D2;border-color:rgba(255,255,255,.3);" onclick="handleLockButtonClick()" title="ซ่อน/แสดงยอดเงิน">🔒 ดูยอดเงิน</button>
+        <button class="btn-ghost" style="padding:4px 8px;font-size:11.5px;color:#F1E9D2;border-color:rgba(255,255,255,.3);" onclick="handleLogout()">ออกจากระบบ</button>
       </div>
-      <button class="btn-ghost" id="hdr_lockBtn" style="display:none;padding:4px 8px;font-size:11.5px;color:#F1E9D2;border-color:rgba(255,255,255,.3);" onclick="handleLockButtonClick()" title="ซ่อน/แสดงยอดเงิน">🔒 ซ่อนยอด</button>
-      <button class="btn-ghost" style="padding:4px 8px;font-size:11.5px;color:#F1E9D2;border-color:rgba(255,255,255,.3);" onclick="handleLogout()">ออกจากระบบ</button>
     </div>
   </div>
 </header>
@@ -758,26 +798,6 @@
         <input type="file" id="restoreFileInput" style="display:none" accept=".json" onchange="restoreData(event)">
       </div>
     </div>
-
-    <!-- 🔗 LINE BOT PAIRING & SECURITY CODE (NEW) -->
-    <section class="card" id="lineBindingCard">
-      <h2>🔗 เชื่อมต่อบัญชี LINE (ความปลอดภัย 2 ชั้น)</h2>
-      <p class="hint">ใช้รหัสยืนยันตัวตนนี้เพื่อผูกบัญชี LINE เข้ากับระบบอย่างปลอดภัย ป้องกันไม่ให้ผู้อื่นนำอีเมลของคุณไปแอบอ้างเพื่อดูข้อมูลเงินเดือน</p>
-      
-      <div style="background:#FFFDF7;border:1px dashed var(--line);border-radius:8px;padding:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div>
-          <div style="font-size:12px;color:var(--muted);font-weight:600;">รหัสยืนยันตัวตน LINE (Pairing Code):</div>
-          <div id="line_link_code_display" class="mono" style="font-size:24px;font-weight:700;color:var(--amber-dark);letter-spacing:0.1em;margin-top:2px;">------</div>
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button type="button" class="btn-primary" onclick="generateNewLineLinkCode()">🔄 สร้างรหัสใหม่</button>
-          <button type="button" class="btn-ghost" onclick="copyLineBindCommand()">📋 คัดลอกคำสั่ง</button>
-        </div>
-      </div>
-      <div id="line_bind_instruction" class="hint" style="margin-top:10px;margin-bottom:0;">
-        👉 พิมพ์ใน LINE: <code class="mono" id="line_cmd_sample" style="background:rgba(214,138,45,.15);padding:2px 6px;border-radius:4px;color:var(--ink);">ผูกบัญชี ...</code>
-      </div>
-    </section>
 
     <!-- COLLAPSIBLE SETTINGS -->
     <section class="card" id="settingsCard">
@@ -1161,6 +1181,7 @@
 
 </main>
 
+<!-- AUTH OVERLAY -->
 <div class="auth-overlay" id="authScreen">
   <div class="auth-box">
     <div style="text-align:center;margin-bottom:16px;">
@@ -1210,6 +1231,51 @@
   </div>
 </div>
 
+<!-- 💬 LINE CONNECT POPUP MODAL (NEW) -->
+<div class="modal-overlay" id="lineConnectModal" onclick="handleLineConnectOverlayClick(event)">
+  <div class="modal" style="max-width:440px;text-align:center;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h3 style="margin:0;font-size:17px;color:var(--ink);display:flex;align-items:center;gap:6px;">
+        <span style="color:var(--line-green);font-size:22px;">💬</span> เชื่อมต่อ LINE Notify
+      </h3>
+      <button type="button" class="btn-ghost" style="padding:2px 8px;font-size:16px;" onclick="closeLineConnectModal()">✕</button>
+    </div>
+
+    <p class="hint" style="margin-top:0;margin-bottom:14px;text-align:left;">
+      สแกน QR Code เพื่อเพิ่มเพื่อนบอท จากนั้นส่งคำสั่งพร้อมรหัสยืนยัน 6 หลักในแชท เพื่อเปิดใช้งานการลงเวลา OT และเช็คยอดเงินเดือนผ่าน LINE
+    </p>
+
+    <!-- QR CODE BOX -->
+    <div style="background:#FFF;padding:12px;border-radius:12px;display:inline-block;border:1px solid var(--line);box-shadow:0 4px 12px rgba(0,0,0,.06);margin-bottom:10px;">
+      <img src="https://qr-official.line.me/gs/M_2009939632_GW.png" alt="LINE Bot QR Code" style="width:160px;height:160px;display:block;border-radius:6px;" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://line.me/R/ti/p/@2009939632'">
+    </div>
+    <div style="font-size:12px;color:var(--muted);font-weight:600;margin-bottom:14px;">บอท: Salary Notify</div>
+
+    <!-- 6-DIGIT PAIRING CODE BOX -->
+    <div style="background:#FFFDF7;border:1.5px dashed var(--amber);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:11.5px;color:var(--muted);font-weight:600;">รหัสยืนยันตัวตน 6 หลัก (Pairing Code)</div>
+      <div id="modal_line_code" class="mono" style="font-size:30px;font-weight:700;color:var(--amber-dark);letter-spacing:0.18em;margin:4px 0;">------</div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px;">
+        <button type="button" class="btn-primary" style="padding:5px 12px;font-size:12px;" onclick="generateNewLineLinkCode()">🔄 สุ่มรหัสใหม่</button>
+        <button type="button" class="btn-dark" style="padding:5px 12px;font-size:12px;" onclick="copyLineBindCommand()">📋 คัดลอกคำสั่ง</button>
+      </div>
+    </div>
+
+    <!-- INSTRUCTIONS -->
+    <div style="background:rgba(214,138,45,.08);padding:10px 12px;border-radius:8px;text-align:left;font-size:12px;line-height:1.5;color:var(--text);margin-bottom:14px;">
+      <strong>📝 ขั้นตอนการเปิดใช้งาน:</strong><br>
+      1. ใช้ LINE สแกน QR Code ด้านบนเพื่อเพิ่มเพื่อน<br>
+      2. ส่งคำสั่งด้านล่างนี้ในแชทบอท:<br>
+      <div style="margin-top:6px;background:#FFF;padding:7px 9px;border-radius:6px;border:1px solid var(--line);word-break:break-all;">
+        <code class="mono" id="modal_line_cmd" style="color:var(--ink);font-weight:700;">ผูกบัญชี ...</code>
+      </div>
+    </div>
+
+    <button type="button" class="btn-ghost" style="width:100%;justify-content:center;" onclick="closeLineConnectModal()">ปิดหน้าต่าง</button>
+  </div>
+</div>
+
+<!-- PIN OVERLAY -->
 <div class="pin-overlay" id="pinOverlay" onclick="handlePinOverlayClick(event)">
   <div class="pin-box">
     <button type="button" class="pin-close" id="pinCloseBtn" onclick="closePinOverlay()" style="display:none;">✕</button>
@@ -1265,6 +1331,7 @@
   </div>
 </div>
 
+<!-- ENTRY MODAL -->
 <div class="modal-overlay" id="entryModal" onclick="handleModalOverlayClick(event)">
   <div class="modal">
     <h3 id="modalTitle">บันทึกข้อมูลวันที่</h3>
@@ -1306,6 +1373,7 @@
   </div>
 </div>
 
+<!-- PAYSLIP MODAL -->
 <div class="modal-overlay" id="payslipModal" onclick="handlePayslipOverlayClick(event)">
   <div class="modal payslip-modal">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -1550,6 +1618,7 @@
       document.getElementById('authScreen').classList.remove('open');
       document.getElementById('appMain').style.display = 'block';
       document.getElementById('userBadgeWrap').style.display = 'flex';
+      document.getElementById('hdr_lineConnectBtn').style.display = 'inline-flex';
 
       const shortName = user.email.split('@')[0];
       document.getElementById('hdr_userName').textContent = settings.name || shortName;
@@ -1563,6 +1632,7 @@
       document.getElementById('authScreen').classList.add('open');
       document.getElementById('appMain').style.display = 'none';
       document.getElementById('userBadgeWrap').style.display = 'none';
+      document.getElementById('hdr_lineConnectBtn').style.display = 'none';
       document.getElementById('hdr_lockBtn').style.display = 'none';
       userPinHash = null;
       document.body.classList.remove('pin-locked');
@@ -1627,15 +1697,27 @@
     });
   }
 
-  // แสดงผลรหัสเชื่อมต่อ LINE บน UI
+  // ระบบ Modal เชื่อมต่อ LINE
+  function openLineConnectModal() {
+    renderLineLinkCodeUI();
+    document.getElementById('lineConnectModal').classList.add('open');
+  }
+
+  function closeLineConnectModal() {
+    document.getElementById('lineConnectModal').classList.remove('open');
+  }
+
+  function handleLineConnectOverlayClick(e) {
+    if (e.target.id === 'lineConnectModal') closeLineConnectModal();
+  }
+
   function renderLineLinkCodeUI() {
-    const codeEl = document.getElementById('line_link_code_display');
-    const sampleEl = document.getElementById('line_cmd_sample');
-    if (codeEl) codeEl.textContent = currentLineLinkCode || '------';
-    if (sampleEl) {
-      const email = currentUserEmail || 'your-email@gmail.com';
-      sampleEl.textContent = `ผูกบัญชี ${email} ${currentLineLinkCode || 'xxxxxx'}`;
-    }
+    const codeEl = document.getElementById('modal_line_code');
+    const cmdEl = document.getElementById('modal_line_cmd');
+    const email = currentUserEmail || 'your-email@gmail.com';
+    const code = currentLineLinkCode || '------';
+    if (codeEl) codeEl.textContent = code;
+    if (cmdEl) cmdEl.textContent = `ผูกบัญชี ${email} ${code}`;
   }
 
   async function generateNewLineLinkCode() {
@@ -1646,7 +1728,7 @@
       await setDoc(userRef, { lineLinkCode: newCode }, { merge: true });
       currentLineLinkCode = newCode;
       renderLineLinkCodeUI();
-      alert(`สร้างรหัสเชื่อมต่อใหม่แล้ว: ${newCode}`);
+      alert(`สร้างรหัสยืนยันใหม่เรียบร้อยแล้ว: ${newCode}`);
     } catch (e) {
       alert('ไม่สามารถสร้างรหัสใหม่ได้: ' + e.message);
     }
@@ -1656,7 +1738,7 @@
     if (!currentLineLinkCode || !currentUserEmail) return;
     const cmd = `ผูกบัญชี ${currentUserEmail} ${currentLineLinkCode}`;
     navigator.clipboard.writeText(cmd).then(() => {
-      alert(`คัดลอกคำสั่งเรียบร้อย:\n${cmd}\n\nนำไปวางส่งในห้องแชท LINE ได้เลยครับ`);
+      alert(`คัดลอกคำสั่งเรียบร้อยแล้ว:\n${cmd}\n\nเปิด LINE วางส่งในห้องแชท Salary Notify ได้เลยครับ`);
     }).catch(() => {
       alert(`คำสั่งผูกบัญชีคือ:\n${cmd}`);
     });
@@ -3229,7 +3311,7 @@
     applyMoneyMask();
   }
 
-  // GLOBAL EXPORTS FOR INLINE HTML HANDLERS
+  // GLOBAL EXPORTS
   window.switchMainTab = switchMainTab;
   window.shiftExpenseMonth = shiftExpenseMonth;
   window.addMonthlyExpense = addMonthlyExpense;
@@ -3240,6 +3322,9 @@
   window.joinExpenseGroup = joinExpenseGroup;
   window.leaveExpenseGroup = leaveExpenseGroup;
   window.copyGroupCode = copyGroupCode;
+  window.openLineConnectModal = openLineConnectModal;
+  window.closeLineConnectModal = closeLineConnectModal;
+  window.handleLineConnectOverlayClick = handleLineConnectOverlayClick;
   window.generateNewLineLinkCode = generateNewLineLinkCode;
   window.copyLineBindCommand = copyLineBindCommand;
   window.onSalaryGoalChange = onSalaryGoalChange;
